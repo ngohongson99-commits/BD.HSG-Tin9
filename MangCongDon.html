@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mảng cộng dồn (Prefix Sum) trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>➕ Mảng cộng dồn (Prefix Sum)</h1>
+<p>Kỹ thuật tính tổng đoạn con trong O(1) – dành cho học sinh đã biết mảng một chiều</p>
+</header>
+<nav>
+<a href="#bt">1. Bài toán mở đầu</a><a href="#y">2. Ý tưởng</a><a href="#ct">3. Công thức</a><a href="#code">4. Cài đặt</a><a href="#vd">5. Chạy thử</a><a href="#bai-tap">6. Bài tập</a><a href="#luu">7. Lưu ý</a>
+</nav>
+<main>
+
+<section id="bt">
+<h2>1. Bài toán mở đầu</h2>
+<div class="box"><b>Đề bài.</b> Cho dãy <code>n</code> số nguyên <code>a<sub>1</sub>, a<sub>2</sub>, …, a<sub>n</sub></code>. Có <code>q</code> câu hỏi, mỗi câu cho hai số <code>l, r</code> (<code>1 ≤ l ≤ r ≤ n</code>). Hãy in ra tổng <code>a<sub>l</sub> + a<sub>l+1</sub> + … + a<sub>r</sub></code>.<br>
+<b>Giới hạn:</b> <code>n, q ≤ 100 000</code>.</div>
+<p><b>Ví dụ:</b> <code>n = 8</code>, dãy <code>3 1 4 1 5 9 2 6</code>. Hỏi <code>(3, 6)</code> → <code>4 + 1 + 5 + 9 = 19</code>.</p>
+
+<h3>Cách 1: duyệt trực tiếp</h3>
+<pre><code><span class="k">while</span> (q--) {
+    <span class="k">int</span> l, r; cin &gt;&gt; l &gt;&gt; r;
+    <span class="k">long long</span> s = 0;
+    <span class="k">for</span> (<span class="k">int</span> i = l; i &lt;= r; i++) s += a[i];
+    cout &lt;&lt; s &lt;&lt; "\n";
+}</code></pre>
+<p>Đúng, nhưng <b>chậm</b>. Mỗi câu hỏi có thể phải cộng tới <code>n</code> số, tổng cộng khoảng <code>n × q = 100 000 × 100 000 = 10<sup>10</sup></code> phép cộng. Máy tính chỉ làm được khoảng 10<sup>8</sup> phép tính mỗi giây, nên chương trình sẽ chạy hàng phút và bị quá thời gian (TLE).</p>
+<div class="box w">❓ <b>Câu hỏi để suy nghĩ:</b> các câu hỏi đều hỏi trên <i>cùng một dãy số</i>. Mỗi lần ta lại cộng lại từ đầu, có phải đang làm việc lặp đi lặp lại không? Có thể tính trước điều gì đó <b>một lần</b> để mọi câu hỏi sau đó trả lời thật nhanh?</div>
+</section>
+
+<section id="y">
+<h2>2. Ý tưởng: tính trước tổng từ đầu dãy</h2>
+<p>Thay vì lưu tổng của từng đoạn (quá nhiều đoạn), ta chỉ lưu <b>tổng của các đoạn bắt đầu từ đầu dãy</b>. Gọi <code>pre[i]</code> là tổng của <code>i</code> số đầu tiên:</p>
+<pre><code>pre[0] = 0
+pre[1] = a[1]
+pre[2] = a[1] + a[2]
+pre[3] = a[1] + a[2] + a[3]
+...
+pre[i] = a[1] + a[2] + ... + a[i]</code></pre>
+<p>Hai điều cần nhớ:</p>
+<ul>
+<li><code>pre[0] = 0</code> (tổng của 0 số là 0). Quy ước này rất quan trọng, sẽ thấy ở mục sau.</li>
+<li>Mỗi giá trị tính nhanh từ giá trị trước: <b><code>pre[i] = pre[i-1] + a[i]</code></b>. Vì thế cả mảng <code>pre</code> chỉ tốn <code>n</code> phép cộng.</li>
+</ul>
+<p>Với dãy mẫu <code>3 1 4 1 5 9 2 6</code>:</p>
+<div class="tbl"><table>
+<tr><th>i</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+<tr><th>a[i]</th><td>–</td><td>3</td><td>1</td><td>4</td><td>1</td><td>5</td><td>9</td><td>2</td><td>6</td></tr>
+<tr><th>pre[i]</th><td>0</td><td>3</td><td>4</td><td>8</td><td>9</td><td>14</td><td>23</td><td>25</td><td>31</td></tr>
+</table></div>
+<p>Ví dụ <code>pre[3] = pre[2] + a[3] = 4 + 4 = 8</code>.</p>
+</section>
+
+<section id="ct">
+<h2>3. Công thức tính tổng đoạn [l, r]</h2>
+<div class="box"><b>S(l, r) = pre[r] − pre[l−1]</b></div>
+<h3>Vì sao đúng?</h3>
+<p>Xét đoạn <code>[3, 6]</code> của dãy mẫu:</p>
+<div class="tbl"><table>
+<tr><th>i</th><td>1</td><td>2</td><td class="h">3</td><td class="h">4</td><td class="h">5</td><td class="h">6</td><td>7</td><td>8</td></tr>
+<tr><th>a[i]</th><td>3</td><td>1</td><td class="h">4</td><td class="h">1</td><td class="h">5</td><td class="h">9</td><td>2</td><td>6</td></tr>
+</table></div>
+<ul>
+<li><code>pre[6] = a1 + a2 + <b>a3 + a4 + a5 + a6</b></code> → gồm phần cần tính và phần thừa ở đầu.</li>
+<li><code>pre[2] = a1 + a2</code> → đúng bằng phần thừa đó.</li>
+<li>Trừ đi, phần thừa biến mất: <code>pre[6] − pre[2] = a3 + a4 + a5 + a6 = 23 − 4 = 19</code> ✔</li>
+</ul>
+<p><b>Tại sao là <code>l−1</code> mà không phải <code>l</code>?</b> Vì ta cần <i>giữ lại</i> <code>a[l]</code>. Nếu trừ <code>pre[l]</code> thì <code>a[l]</code> cũng bị trừ mất. Phần cần bỏ là những số <b>đứng trước</b> <code>l</code>, tức là <code>a[1..l-1]</code>.</p>
+<p><b>Tại sao cần <code>pre[0] = 0</code>?</b> Khi <code>l = 1</code>, công thức thành <code>pre[r] − pre[0]</code>. Nhờ <code>pre[0] = 0</code>, không cần viết riêng trường hợp đoạn bắt đầu từ đầu dãy.</p>
+</section>
+
+<section id="code">
+<h2>4. Cài đặt trong C++</h2>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">int</span> main() {
+    ios::sync_with_stdio(<span class="k">false</span>); cin.tie(<span class="k">nullptr</span>);
+    <span class="k">int</span> n, q;
+    cin &gt;&gt; n &gt;&gt; q;
+    vector&lt;<span class="k">long long</span>&gt; pre(n + 1, 0);     <span class="c">// pre[0] = 0</span>
+    <span class="k">for</span> (<span class="k">int</span> i = 1; i &lt;= n; i++) {        <span class="c">// đánh số từ 1</span>
+        <span class="k">long long</span> x; cin &gt;&gt; x;
+        pre[i] = pre[i - 1] + x;
+    }
+    <span class="k">while</span> (q--) {
+        <span class="k">int</span> l, r; cin &gt;&gt; l &gt;&gt; r;
+        cout &lt;&lt; pre[r] - pre[l - 1] &lt;&lt; "\n";
+    }
+}</code></pre>
+<p><b>Phân tích:</b> dựng mảng <code>pre</code> mất <code>O(n)</code>, mỗi câu hỏi mất <code>O(1)</code>. Tổng <code>O(n + q)</code> ≈ 200 000 phép tính, so với 10<sup>10</sup> của cách 1.</p>
+<div class="box">💡 Ta không cần lưu riêng mảng <code>a</code>, vì ta chỉ cần <code>pre</code>. Nếu sau này cần lại <code>a[i]</code> thì lấy <code>pre[i] − pre[i−1]</code>.</div>
+</section>
+
+<section id="vd">
+<h2>5. Chạy thử với dữ liệu mẫu</h2>
+<p>Dùng bảng <code>pre = 0 3 4 8 9 14 23 25 31</code> ở mục 2:</p>
+<div class="tbl"><table>
+<tr><th>Câu hỏi (l, r)</th><th>Tính</th><th>Kết quả</th><th>Kiểm tra</th></tr>
+<tr><td>(3, 6)</td><td>pre[6] − pre[2] = 23 − 4</td><td>19</td><td>4+1+5+9</td></tr>
+<tr><td>(1, 4)</td><td>pre[4] − pre[0] = 9 − 0</td><td>9</td><td>3+1+4+1</td></tr>
+<tr><td>(5, 8)</td><td>pre[8] − pre[4] = 31 − 9</td><td>22</td><td>5+9+2+6</td></tr>
+<tr><td>(7, 7)</td><td>pre[7] − pre[6] = 25 − 23</td><td>2</td><td>a[7]</td></tr>
+</table></div>
+<p>Hãy tự chọn thêm vài đoạn và kiểm tra bằng tay cho quen tay.</p>
+</section>
+
+<section id="bai-tap">
+<h2>6. Bài tập nâng dần</h2>
+<p>Mỗi bài đều dùng ý tưởng <i>"tính trước một lần, dùng nhiều lần"</i>. Hãy tự nghĩ trước, rồi bấm <b>Xem lời giải</b>. Quy ước chung: mảng đánh số từ 1, dùng <code>long long</code>.</p>
+
+<div class="bt"><h3>Bài 1. Tổng đoạn <span class="lv">(cơ bản)</span></h3>
+<p>Cho <code>n</code> số và <code>q</code> truy vấn <code>(l, r)</code>. In tổng đoạn cho mỗi truy vấn.</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p>Chính là bài toán mở đầu: xây <code>pre</code>, trả lời mỗi truy vấn bằng <code>pre[r] - pre[l-1]</code>. Code ở mục 4.</p></div></details></div>
+
+<div class="bt"><h3>Bài 2. Đếm số chẵn trong đoạn <span class="lv">(dễ)</span></h3>
+<p>Cho <code>n</code> số và <code>q</code> truy vấn <code>(l, r)</code>. Với mỗi truy vấn, đếm có bao nhiêu số chẵn trong <code>a[l..r]</code>.<br><i>Ví dụ:</i> dãy <code>3 4 6 7 8</code>, truy vấn <code>(2, 5)</code> → <code>3</code>.</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> cộng dồn không chỉ dùng cho "giá trị" mà còn dùng cho "số lượng". Đặt <code>c[i]</code> = số lượng số chẵn trong <code>a[1..i]</code>. Mỗi số chẵn "đóng góp" 1, số lẻ đóng góp 0, nên <code>c[i] = c[i-1] + (a[i] % 2 == 0)</code>. Số chẵn trong <code>[l, r]</code> là <code>c[r] - c[l-1]</code>.</p>
+<pre><code>vector&lt;<span class="k">int</span>&gt; c(n + 1, 0);
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt;= n; i++) {
+    <span class="k">int</span> x; cin &gt;&gt; x;
+    c[i] = c[i - 1] + (x % 2 == 0 ? 1 : 0);
+}
+<span class="k">while</span> (q--) {
+    <span class="k">int</span> l, r; cin &gt;&gt; l &gt;&gt; r;
+    cout &lt;&lt; c[r] - c[l - 1] &lt;&lt; "\n";
+}</code></pre>
+<p>Cách này dùng được cho mọi điều kiện: đếm số dương, số chia hết cho 3, số bằng một giá trị cho trước, …</p></div></details></div>
+
+<div class="bt"><h3>Bài 3. Vị trí cân bằng <span class="lv">(trung bình)</span></h3>
+<p>Tìm vị trí <code>i</code> sao cho tổng các số bên trái <code>i</code> bằng tổng các số bên phải <code>i</code> (không tính <code>a[i]</code>). In vị trí nhỏ nhất, nếu không có in <code>-1</code>.<br><i>Ví dụ:</i> dãy <code>1 3 5 2 2</code> → <code>3</code> (trái: 1+3 = 4, phải: 2+2 = 4).</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> tổng bên trái <code>i</code> là <code>pre[i-1]</code>; tổng bên phải là <code>pre[n] - pre[i]</code>. Chỉ cần thử từng <code>i</code> và so sánh hai giá trị đó. Độ phức tạp <code>O(n)</code>.</p>
+<pre><code><span class="k">int</span> ans = -1;
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt;= n; i++) {
+    <span class="k">long long</span> trai = pre[i - 1];
+    <span class="k">long long</span> phai = pre[n] - pre[i];
+    <span class="k">if</span> (trai == phai) { ans = i; <span class="k">break</span>; }
+}
+cout &lt;&lt; ans;</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 4. Đoạn k phần tử liên tiếp có tổng lớn nhất <span class="lv">(trung bình)</span></h3>
+<p>Cho <code>n</code> số và số <code>k</code>. Trong tất cả các đoạn gồm đúng <code>k</code> phần tử liên tiếp, tìm tổng lớn nhất.<br><i>Ví dụ:</i> dãy <code>1 -2 3 4 -1 2</code>, <code>k = 3</code> → <code>6</code> (đoạn <code>3 4 -1</code>).</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> các đoạn dài <code>k</code> kết thúc tại <code>i = k, k+1, …, n</code>, bắt đầu tại <code>i-k+1</code>. Tổng của nó là <code>pre[i] - pre[i-k]</code>. Duyệt <code>i</code> và giữ giá trị lớn nhất. Đặt <code>best</code> ban đầu rất nhỏ vì tổng có thể âm.</p>
+<pre><code><span class="k">long long</span> best = LLONG_MIN;      <span class="c">// #include &lt;climits&gt;</span>
+<span class="k">for</span> (<span class="k">int</span> i = k; i &lt;= n; i++)
+    best = max(best, pre[i] - pre[i - k]);
+cout &lt;&lt; best;</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 5. Đoạn con liên tiếp có tổng lớn nhất <span class="lv">(khá)</span></h3>
+<p>Cho <code>n</code> số (có thể âm). Chọn một đoạn liên tiếp <b>không rỗng</b> sao cho tổng lớn nhất. In tổng đó.<br><i>Ví dụ:</i> dãy <code>-2 1 -3 4 -1 2 1 -5 4</code> → <code>6</code> (đoạn <code>4 -1 2 1</code>).</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> tổng đoạn <code>[l, r]</code> là <code>pre[r] - pre[l-1]</code>. Cố định điểm kết thúc <code>r</code>; để tổng lớn nhất ta cần trừ đi <code>pre[j]</code> <b>nhỏ nhất</b> trong các <code>j = 0 … r-1</code>. Vậy khi duyệt <code>r</code> từ trái sang phải, ta giữ <code>minPre</code> = giá trị nhỏ nhất của <code>pre</code> ở các vị trí đứng trước <code>r</code>.</p>
+<p>Thứ tự trong vòng lặp rất quan trọng: <b>tính đáp án trước, cập nhật <code>minPre</code> sau</b>, để đoạn luôn không rỗng.</p>
+<pre><code><span class="k">long long</span> best = LLONG_MIN, minPre = 0;   <span class="c">// minPre bắt đầu = pre[0]</span>
+<span class="k">for</span> (<span class="k">int</span> r = 1; r &lt;= n; r++) {
+    best   = max(best, pre[r] - minPre);
+    minPre = min(minPre, pre[r]);
+}
+cout &lt;&lt; best;</code></pre>
+<p>Độ phức tạp <code>O(n)</code>. Đây là cách nhìn "tổng tiền tố" của bài toán nổi tiếng (thuật toán Kadane).</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Đếm số đoạn có tổng bằng K <span class="lv">(khó)</span></h3>
+<p>Cho <code>n</code> số (có thể âm) và số <code>K</code>. Đếm có bao nhiêu đoạn liên tiếp <code>[l, r]</code> có tổng đúng bằng <code>K</code>.<br><i>Ví dụ:</i> dãy <code>1 2 1 2 1</code>, <code>K = 3</code> → <code>4</code> (các đoạn <code>[1,2]</code>, <code>[2,3]</code>, <code>[3,4]</code>, <code>[4,5]</code>).</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> đoạn <code>[l, r]</code> có tổng <code>K</code> khi <code>pre[r] - pre[l-1] = K</code>, tức <code>pre[l-1] = pre[r] - K</code>. Duyệt <code>r</code> từ trái sang phải, với mỗi <code>r</code> ta cần biết <b>đã có bao nhiêu vị trí trước đó</b> có <code>pre</code> bằng <code>pre[r] - K</code>. Dùng <code>map</code> để đếm số lần mỗi giá trị <code>pre</code> đã xuất hiện.</p>
+<ul><li>Bắt đầu với <code>cnt[0] = 1</code> (ứng với <code>pre[0] = 0</code>).</li>
+<li>Với mỗi <code>r</code>: cộng <code>cnt[pre[r] - K]</code> vào đáp án, <b>sau đó</b> mới thêm <code>pre[r]</code> vào <code>cnt</code>.</li></ul>
+<pre><code>#include &lt;map&gt;
+map&lt;<span class="k">long long</span>, <span class="k">int</span>&gt; cnt;
+cnt[0] = 1;
+<span class="k">long long</span> s = 0, ans = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt;= n; i++) {
+    <span class="k">long long</span> x; cin &gt;&gt; x;
+    s += x;                          <span class="c">// s chính là pre[i]</span>
+    <span class="k">if</span> (cnt.count(s - K)) ans += cnt[s - K];
+    cnt[s]++;
+}
+cout &lt;&lt; ans;</code></pre>
+<p>Độ phức tạp <code>O(n log n)</code>. Bài này không cần lưu cả mảng <code>pre</code>, chỉ cần tổng đang chạy <code>s</code>.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>7. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Quên <code>pre[0] = 0</code> hoặc đánh số từ 0:</b> dễ sai khi <code>l = 1</code> (truy cập <code>pre[-1]</code>). Hãy đánh số từ 1 và chừa sẵn <code>pre[0]</code>.</div>
+<div class="box w"><b>Nhầm <code>pre[l]</code> với <code>pre[l-1]</code>:</b> nhớ rằng phải giữ lại <code>a[l]</code>.</div>
+<div class="box w"><b>Tràn số:</b> 10<sup>5</sup> số, mỗi số tới 10<sup>9</sup> cho tổng khoảng 10<sup>14</sup>, vượt <code>int</code>. Hãy dùng <code>long long</code> cho <code>pre</code>.</div>
+<div class="box w"><b>Mảng thay đổi:</b> prefix sum chỉ hợp khi dãy <i>không đổi</i> giữa các truy vấn. Nếu có thao tác sửa giá trị xen kẽ thì cần cấu trúc khác (ví dụ Fenwick Tree).</div>
+<div class="box"><b>Tóm tắt:</b> tính <code>pre[i] = pre[i-1] + a[i]</code> một lần trong <code>O(n)</code>, sau đó mỗi truy vấn tổng đoạn là <code>pre[r] - pre[l-1]</code> trong <code>O(1)</code>.</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

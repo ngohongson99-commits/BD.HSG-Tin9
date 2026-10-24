@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cửa sổ trượt (Sliding Window) trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;--out:#ffd2d2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+td.o{background:var(--out);text-decoration:line-through}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>🪟 Cửa sổ trượt (Sliding Window)</h1>
+<p>Xử lý các đoạn con liên tiếp có độ dài cố định trong O(n)</p>
+</header>
+<nav>
+<a href="#bt">1. Bài toán mở đầu</a><a href="#y">2. Ý tưởng</a><a href="#code">3. Cài đặt</a><a href="#vd">4. Chạy thử</a><a href="#ss">5. So sánh</a><a href="#bai-tap">6. Bài tập</a><a href="#luu">7. Lưu ý</a>
+</nav>
+<main>
+
+<section id="bt">
+<h2>1. Bài toán mở đầu</h2>
+<div class="box"><b>Đề bài.</b> Cho dãy <code>n</code> số nguyên và số nguyên <code>k</code> (<code>1 ≤ k ≤ n</code>). Trong tất cả các đoạn gồm <b>đúng k phần tử liên tiếp</b>, hãy tìm tổng lớn nhất.<br><b>Giới hạn:</b> <code>n ≤ 10<sup>6</sup></code>.</div>
+<p><b>Ví dụ:</b> <code>n = 6</code>, <code>k = 3</code>, dãy <code>2 1 5 1 3 2</code>. Có 4 đoạn dài 3:</p>
+<div class="tbl"><table>
+<tr><th>Đoạn</th><td>2 1 5</td><td>1 5 1</td><td>5 1 3</td><td>1 3 2</td></tr>
+<tr><th>Tổng</th><td>8</td><td>7</td><td>9</td><td>6</td></tr>
+</table></div>
+<p>Đáp án là <code>9</code>.</p>
+
+<h3>Cách 1: tính lại tổng của từng đoạn</h3>
+<pre><code><span class="k">long long</span> best = LLONG_MIN;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i + k &lt;= n; i++) {      <span class="c">// đoạn bắt đầu ở i</span>
+    <span class="k">long long</span> s = 0;
+    <span class="k">for</span> (<span class="k">int</span> j = i; j &lt; i + k; j++) s += a[j];
+    best = max(best, s);
+}</code></pre>
+<p>Có khoảng <code>n − k + 1</code> đoạn, mỗi đoạn cộng <code>k</code> số, tổng cộng gần <code>n × k</code> phép tính. Với <code>n = 10<sup>6</sup></code>, <code>k = 5·10<sup>5</sup></code> thì khoảng 2,5·10<sup>11</sup> phép tính: quá chậm.</p>
+<div class="box w">❓ <b>Hãy quan sát:</b> hai đoạn kề nhau <code>2 1 5</code> và <code>1 5 1</code> <b>chung nhau</b> hai số <code>1 5</code>. Vì sao lại cộng lại hai số đó từ đầu?</div>
+</section>
+
+<section id="y">
+<h2>2. Ý tưởng: trượt khung, bỏ một số, thêm một số</h2>
+<p>Hình dung một <b>khung cửa sổ rộng k ô</b> đặt trên dãy số. Khi trượt khung sang phải một ô thì:</p>
+<ul>
+<li>một số <b>đi ra</b> ở mép trái,</li>
+<li>một số <b>đi vào</b> ở mép phải,</li>
+<li>các số ở giữa <b>không đổi</b>.</li>
+</ul>
+<p>Cửa sổ ban đầu (chỉ số 0..2) có tổng <code>2 + 1 + 5 = 8</code>:</p>
+<div class="tbl"><table>
+<tr><th>chỉ số</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+<tr><th>a</th><td class="h">2</td><td class="h">1</td><td class="h">5</td><td>1</td><td>3</td><td>2</td></tr>
+</table></div>
+<p>Trượt sang phải một ô: số <code>2</code> ra, số <code>1</code> (chỉ số 3) vào:</p>
+<div class="tbl"><table>
+<tr><th>chỉ số</th><td class="o">0</td><td>1</td><td>2</td><td class="i">3</td><td>4</td><td>5</td></tr>
+<tr><th>a</th><td class="o">2</td><td class="h">1</td><td class="h">5</td><td class="i">1</td><td>3</td><td>2</td></tr>
+</table></div>
+<div class="box"><b>Tổng mới = tổng cũ − số đi ra + số đi vào</b> = 8 − 2 + 1 = 7</div>
+<p>Tổng tổng quát: khi cửa sổ trượt đến phần tử <code>a[i]</code> (cửa sổ mới là <code>[i−k+1, i]</code>), số đi vào là <code>a[i]</code> và số đi ra là <code>a[i−k]</code>:</p>
+<pre><code>s = s + a[i] - a[i - k]</code></pre>
+<p>Mỗi lần trượt chỉ tốn <b>1 phép cộng và 1 phép trừ</b> (không phụ thuộc <code>k</code>). Mỗi phần tử vào cửa sổ đúng một lần và ra đúng một lần, nên cả thuật toán là <b>O(n)</b>.</p>
+</section>
+
+<section id="code">
+<h2>3. Cài đặt: khuôn mẫu 3 bước</h2>
+<ol>
+<li><b>Dựng cửa sổ đầu tiên:</b> cộng <code>k</code> số đầu, đặt đáp án bằng tổng này.</li>
+<li><b>Trượt:</b> với <code>i</code> từ <code>k</code> đến <code>n−1</code>, thêm <code>a[i]</code>, bớt <code>a[i−k]</code>.</li>
+<li><b>Cập nhật đáp án</b> sau mỗi lần trượt.</li>
+</ol>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;climits&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">int</span> main() {
+    <span class="k">int</span> n, k; cin &gt;&gt; n &gt;&gt; k;
+    vector&lt;<span class="k">long long</span>&gt; a(n);               <span class="c">// đánh số từ 0</span>
+    <span class="k">for</span> (<span class="k">auto</span> &amp;x : a) cin &gt;&gt; x;
+
+    <span class="k">long long</span> s = 0;
+    <span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; k; i++) s += a[i];   <span class="c">// bước 1</span>
+    <span class="k">long long</span> best = s;
+
+    <span class="k">for</span> (<span class="k">int</span> i = k; i &lt; n; i++) {            <span class="c">// bước 2</span>
+        s += a[i] - a[i - k];
+        best = max(best, s);                 <span class="c">// bước 3</span>
+    }
+    cout &lt;&lt; best;
+}</code></pre>
+<p><b>Độ phức tạp:</b> thời gian <code>O(n)</code>; bộ nhớ thêm chỉ vài biến.</p>
+</section>
+
+<section id="vd">
+<h2>4. Chạy thử với dữ liệu mẫu</h2>
+<p>Dãy <code>2 1 5 1 3 2</code>, <code>k = 3</code>:</p>
+<div class="tbl"><table>
+<tr><th>Bước</th><th>i</th><th>Cửa sổ</th><th>Ra</th><th>Vào</th><th>s</th><th>best</th></tr>
+<tr><td>Khởi tạo</td><td>–</td><td>[0..2]</td><td>–</td><td>–</td><td>8</td><td>8</td></tr>
+<tr><td>Trượt 1</td><td>3</td><td>[1..3]</td><td>a[0]=2</td><td>a[3]=1</td><td>8−2+1 = 7</td><td>8</td></tr>
+<tr><td>Trượt 2</td><td>4</td><td>[2..4]</td><td>a[1]=1</td><td>a[4]=3</td><td>7−1+3 = 9</td><td>9</td></tr>
+<tr><td>Trượt 3</td><td>5</td><td>[3..5]</td><td>a[2]=5</td><td>a[5]=2</td><td>9−5+2 = 6</td><td>9</td></tr>
+</table></div>
+<p>Kết quả <code>9</code>, khớp với bảng ở mục 1.</p>
+</section>
+
+<section id="ss">
+<h2>5. So sánh các cách làm</h2>
+<div class="tbl"><table>
+<tr><th>Cách</th><th>Thời gian</th><th>Bộ nhớ thêm</th><th>Nhận xét</th></tr>
+<tr><td>Tính lại từng đoạn</td><td>O(n·k)</td><td>O(1)</td><td>Dễ nghĩ, nhưng chậm</td></tr>
+<tr><td>Mảng cộng dồn</td><td>O(n)</td><td>O(n)</td><td>Tổng của <i>mọi</i> đoạn bất kỳ</td></tr>
+<tr><td>Cửa sổ trượt</td><td>O(n)</td><td>O(1)</td><td>Nhanh, gọn, duyệt một lượt</td></tr>
+</table></div>
+<div class="box">💡 <b>Bản chất:</b> cả hai kỹ thuật đều <i>tái sử dụng kết quả đã tính</i>. Mảng cộng dồn phù hợp khi hỏi tổng của đoạn <b>tùy ý</b>. Cửa sổ trượt phù hợp khi các đoạn cần xét <b>nối tiếp nhau</b> và có độ dài cố định, hoặc khi điều cần theo dõi không phải là tổng (số phần tử khác nhau, số nguyên âm, giá trị lớn nhất, …).</div>
+</section>
+
+<section id="bai-tap">
+<h2>6. Bài tập nâng dần</h2>
+<p>Hãy tự nghĩ trước: <i>"cửa sổ đang theo dõi thông tin gì, và khi trượt thì thông tin đó đổi thế nào?"</i> rồi bấm <b>Xem lời giải</b>. Quy ước: mảng đánh số từ 0.</p>
+
+<div class="bt"><h3>Bài 1. Tổng của mọi cửa sổ <span class="lv">(cơ bản)</span></h3>
+<p>Cho <code>n</code> số và <code>k</code>. In tổng của tất cả các cửa sổ độ dài <code>k</code>, từ trái sang phải.<br><i>Ví dụ:</i> <code>2 1 5 1 3 2</code>, <code>k = 3</code> → <code>8 7 9 6</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> giống bài mẫu, nhưng thay vì giữ <code>best</code>, ta in <code>s</code> sau mỗi bước (kể cả cửa sổ đầu tiên).</p>
+<pre><code><span class="k">long long</span> s = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; k; i++) s += a[i];
+cout &lt;&lt; s &lt;&lt; " ";
+<span class="k">for</span> (<span class="k">int</span> i = k; i &lt; n; i++) {
+    s += a[i] - a[i - k];
+    cout &lt;&lt; s &lt;&lt; " ";
+}</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 2. Đếm cửa sổ có tổng ≥ S <span class="lv">(dễ)</span></h3>
+<p>Cho <code>n</code> số, <code>k</code> và <code>S</code>. Đếm số cửa sổ độ dài <code>k</code> có tổng không nhỏ hơn <code>S</code>.<br><i>Ví dụ:</i> <code>2 1 5 1 3 2</code>, <code>k = 3</code>, <code>S = 8</code> → <code>2</code> (các tổng 8 và 9)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> thêm một biến đếm <code>cnt</code>. Mỗi khi có một cửa sổ (kể cả cửa sổ đầu), kiểm tra <code>s &gt;= S</code>.</p>
+<pre><code><span class="k">long long</span> s = 0; <span class="k">int</span> cnt = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; k; i++) s += a[i];
+<span class="k">if</span> (s &gt;= S) cnt++;
+<span class="k">for</span> (<span class="k">int</span> i = k; i &lt; n; i++) {
+    s += a[i] - a[i - k];
+    <span class="k">if</span> (s &gt;= S) cnt++;
+}
+cout &lt;&lt; cnt;</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 3. Số nguyên âm nhiều nhất trong cửa sổ <span class="lv">(trung bình, xâu ký tự)</span></h3>
+<p>Cho xâu <code>s</code> gồm chữ cái thường và số <code>k</code>. Trong các đoạn con liên tiếp dài <code>k</code>, tìm số lượng nguyên âm (<code>a, e, i, o, u</code>) lớn nhất.<br><i>Ví dụ:</i> <code>s = "abciiidef"</code>, <code>k = 3</code> → <code>3</code> (đoạn <code>"iii"</code>)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> cửa sổ không nhất thiết theo dõi <i>tổng</i>; ở đây ta theo dõi <i>số nguyên âm</i> <code>cur</code>. Ký tự vào là nguyên âm thì <code>cur++</code>; ký tự ra là nguyên âm thì <code>cur--</code>. Khuôn mẫu vẫn như cũ.</p>
+<pre><code><span class="k">auto</span> v = [](<span class="k">char</span> c) {
+    <span class="k">return</span> (c=='a' || c=='e' || c=='i' || c=='o' || c=='u') ? 1 : 0;
+};
+<span class="k">int</span> cur = 0, best = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; (<span class="k">int</span>)s.size(); i++) {
+    cur += v(s[i]);                       <span class="c">// vào</span>
+    <span class="k">if</span> (i &gt;= k) cur -= v(s[i - k]);   <span class="c">// ra</span>
+    <span class="k">if</span> (i &gt;= k - 1) best = max(best, cur);
+}
+cout &lt;&lt; best;</code></pre>
+<p>Lưu ý cách viết gộp: một vòng lặp duy nhất, chỉ bắt đầu "bỏ ra" khi <code>i ≥ k</code> và chỉ bắt đầu ghi nhận đáp án khi cửa sổ đã đủ <code>k</code> phần tử (<code>i ≥ k−1</code>).</p></div></details></div>
+
+<div class="bt"><h3>Bài 4. Đếm cửa sổ có các phần tử đôi một khác nhau <span class="lv">(khá)</span></h3>
+<p>Cho <code>n</code> số nguyên (<code>1 ≤ a<sub>i</sub> ≤ 10<sup>5</sup></code>) và <code>k</code>. Đếm số cửa sổ độ dài <code>k</code> mà <b>k số trong đó đều khác nhau</b>.<br><i>Ví dụ:</i> <code>1 2 1 3 4 3</code>, <code>k = 3</code> → <code>2</code> (các đoạn <code>2 1 3</code> và <code>1 3 4</code>)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> cần theo dõi hai thứ: mảng <code>cnt[v]</code> là số lần giá trị <code>v</code> xuất hiện trong cửa sổ, và <code>distinct</code> là số giá trị khác nhau hiện có.</p>
+<ul>
+<li><b>Thêm</b> <code>x</code>: nếu <code>cnt[x]</code> đang bằng 0 thì <code>distinct++</code>, rồi <code>cnt[x]++</code>.</li>
+<li><b>Bớt</b> <code>x</code>: <code>cnt[x]--</code>, nếu về 0 thì <code>distinct--</code>.</li>
+<li>Cửa sổ thỏa mãn khi <code>distinct == k</code>.</li>
+</ul>
+<pre><code>vector&lt;<span class="k">int</span>&gt; cnt(100001, 0);
+<span class="k">int</span> distinct = 0, ans = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+    <span class="k">if</span> (cnt[a[i]]++ == 0) distinct++;            <span class="c">// vào</span>
+    <span class="k">if</span> (i &gt;= k)                                  <span class="c">// ra</span>
+        <span class="k">if</span> (--cnt[a[i - k]] == 0) distinct--;
+    <span class="k">if</span> (i &gt;= k - 1 &amp;&amp; distinct == k) ans++;
+}
+cout &lt;&lt; ans;</code></pre>
+<p>Nếu giá trị lớn hơn 10<sup>5</sup> hoặc có số âm, thay mảng <code>cnt</code> bằng <code>map&lt;int,int&gt;</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 5. Cửa sổ trượt trên mảng vòng <span class="lv">(khá)</span></h3>
+<p>Các số xếp trên <b>vòng tròn</b> (<code>a[n−1]</code> kề <code>a[0]</code>). Tìm tổng lớn nhất của <code>k</code> phần tử liên tiếp trên vòng tròn (<code>k ≤ n</code>).<br><i>Ví dụ:</i> <code>5 -2 3 4</code>, <code>k = 3</code> → <code>12</code> (đoạn <code>3 4 5</code>, đi vòng qua cuối về đầu)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> "nối đuôi" mảng với <code>k−1</code> phần tử đầu để các đoạn đi vòng trở thành đoạn thẳng thông thường. Với <code>5 -2 3 4</code> và <code>k=3</code> mảng mới là <code>5 -2 3 4 5 -2</code>; rồi áp dụng đúng bài mẫu.</p>
+<pre><code><span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; k - 1; i++) a.push_back(a[i]);   <span class="c">// nối đuôi</span>
+<span class="k">int</span> m = a.size();                                 <span class="c">// m = n + k - 1</span>
+<span class="k">long long</span> s = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; k; i++) s += a[i];
+<span class="k">long long</span> best = s;
+<span class="k">for</span> (<span class="k">int</span> i = k; i &lt; m; i++) {
+    s += a[i] - a[i - k];
+    best = max(best, s);
+}
+cout &lt;&lt; best;</code></pre>
+<p>Số cửa sổ khi đó đúng bằng <code>m − k + 1 = n</code>, tức mỗi vị trí bắt đầu trên vòng tròn được xét đúng một lần.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Giá trị lớn nhất của mỗi cửa sổ <span class="lv">(khó)</span></h3>
+<p>Cho <code>n</code> số và <code>k</code>. Với mỗi cửa sổ độ dài <code>k</code>, in giá trị <b>lớn nhất</b> trong cửa sổ đó (<code>n ≤ 10<sup>6</sup></code>).<br><i>Ví dụ:</i> <code>1 3 -1 -3 5 3 6 7</code>, <code>k = 3</code> → <code>3 3 5 5 6 7</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Vì sao khó hơn:</b> với tổng thì "bớt" rất dễ (trừ đi). Với giá trị lớn nhất thì không thể "trừ" được: nếu số lớn nhất vừa ra khỏi cửa sổ, ta không biết số lớn nhất mới là số nào. Cần một cấu trúc giữ sẵn các ứng viên.</p>
+<p><b>Ý tưởng (hàng đợi hai đầu <code>deque</code>):</b> lưu <i>chỉ số</i> các phần tử, sao cho giá trị tương ứng <b>giảm dần</b> từ đầu đến cuối. Khi đó phần tử ở đầu hàng chính là giá trị lớn nhất của cửa sổ.</p>
+<ol>
+<li>Nếu chỉ số ở đầu hàng đã nằm ngoài cửa sổ (<code>≤ i−k</code>) thì bỏ nó ra.</li>
+<li>Trước khi thêm <code>a[i]</code>, bỏ khỏi cuối hàng mọi phần tử <b>không lớn hơn</b> <code>a[i]</code>: chúng nhỏ hơn mà lại ra khỏi cửa sổ sớm hơn, nên không bao giờ làm max được nữa.</li>
+<li>Thêm <code>i</code> vào cuối hàng.</li>
+<li>Khi <code>i ≥ k−1</code>, đáp án của cửa sổ là <code>a[dq.front()]</code>.</li>
+</ol>
+<pre><code>#include &lt;deque&gt;
+deque&lt;<span class="k">int</span>&gt; dq;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+    <span class="k">while</span> (!dq.empty() &amp;&amp; dq.front() &lt;= i - k) dq.pop_front();
+    <span class="k">while</span> (!dq.empty() &amp;&amp; a[dq.back()] &lt;= a[i]) dq.pop_back();
+    dq.push_back(i);
+    <span class="k">if</span> (i &gt;= k - 1) cout &lt;&lt; a[dq.front()] &lt;&lt; " ";
+}</code></pre>
+<p>Mỗi chỉ số được thêm vào đúng một lần và bị bỏ ra nhiều nhất một lần, nên vẫn <code>O(n)</code>. Hãy tự chạy tay với ví dụ để thấy hàng đợi thay đổi thế nào.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>7. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Quên dựng cửa sổ đầu tiên:</b> nếu bắt đầu <code>s = 0</code> rồi trừ <code>a[i-k]</code> ngay từ <code>i = 0</code>, sẽ truy cập chỉ số âm. Hãy dựng cửa sổ đầu riêng, hoặc chỉ trừ khi <code>i ≥ k</code>.</div>
+<div class="box w"><b>Lệch một đơn vị:</b> phần tử đi ra là <code>a[i-k]</code>, không phải <code>a[i-k+1]</code>. Hãy kiểm tra bằng ví dụ nhỏ như mục 4.</div>
+<div class="box w"><b>Khởi tạo đáp án sai:</b> khi tìm max mà dãy có số âm, đặt <code>best = 0</code> là sai. Hãy gán <code>best</code> bằng tổng cửa sổ đầu hoặc <code>LLONG_MIN</code>.</div>
+<div class="box w"><b>Tràn số:</b> tổng nhiều số lớn cần <code>long long</code>.</div>
+<div class="box w"><b>Điều kiện <code>k ≤ n</code>:</b> nếu <code>k &gt; n</code> thì không có cửa sổ nào; hãy xử lý riêng theo đề bài.</div>
+<div class="box"><b>Tóm tắt:</b> xác định xem cửa sổ cần theo dõi thông tin gì (tổng, số đếm, tần suất, max…), rồi viết hai thao tác <b>thêm phần tử vào</b> và <b>bớt phần tử ra</b>. Khuôn mẫu: dựng cửa sổ đầu, rồi trượt từng bước.<br><b>Chủ đề tiếp theo:</b> hai con trỏ và cửa sổ có độ dài <i>thay đổi</i>.</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Làm quen với string trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;--out:#ffd2d2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+td.o{background:var(--out)}
+td.l{text-align:left}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>🔤 Làm quen với string</h1>
+<p>Xâu ký tự trong C++: khai báo, nhập xuất, các thao tác có sẵn và ký tự như một số nguyên</p>
+</header>
+<nav>
+<a href="#kn">1. Xâu ký tự</a><a href="#nhap">2. Khai báo, nhập, xuất</a><a href="#tt">3. Thao tác thường dùng</a><a href="#kt">4. Ký tự và mã ASCII</a><a href="#bt">5. Bài toán mẫu</a><a href="#bai-tap">6. Bài tập</a><a href="#luu">7. Lưu ý</a>
+</nav>
+<main>
+
+<section id="kn">
+<h2>1. Xâu ký tự là một dãy ký tự</h2>
+<p><b>Xâu ký tự</b> (kiểu <code>string</code> trong C++) là một <b>dãy các ký tự</b> viết liền nhau, ví dụ <code>"hello"</code>. Nó giống mảng một chiều đã học: mỗi ký tự có một <b>chỉ số bắt đầu từ 0</b>, truy cập bằng <code>s[i]</code>, độ dài là <code>s.size()</code>.</p>
+<div class="tbl"><table>
+<tr><th>chỉ số</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+<tr><th>s</th><td class="h">h</td><td>e</td><td>l</td><td>l</td><td class="i">o</td></tr>
+</table></div>
+<p>Xâu <code>s = "hello"</code> có độ dài <code>5</code>, chỉ số hợp lệ từ <code>0</code> đến <code>4</code> (tức <code>n − 1</code>). <code>s[0]</code> là <code>'h'</code>, <code>s[4]</code> là <code>'o'</code>.</p>
+<div class="box w">⚠️ <b>Hai loại dấu nháy:</b> <code>'a'</code> (nháy đơn) là <b>một ký tự</b> (kiểu <code>char</code>); <code>"a"</code> (nháy kép) là <b>một xâu</b> (kiểu <code>string</code>), dù chỉ có một ký tự.</div>
+<div class="tbl"><table>
+<tr><th></th><th>Mảng / vector</th><th>string</th></tr>
+<tr><td class="l">Truy cập phần tử</td><td class="l"><code>a[i]</code></td><td class="l"><code>s[i]</code></td></tr>
+<tr><td class="l">Số phần tử</td><td class="l"><code>v.size()</code></td><td class="l"><code>s.size()</code> hoặc <code>s.length()</code></td></tr>
+<tr><td class="l">Thêm vào cuối</td><td class="l"><code>v.push_back(x)</code></td><td class="l"><code>s.push_back(c)</code> hoặc <code>s += c</code></td></tr>
+<tr><td class="l">So sánh hai đối tượng</td><td class="l">không dùng <code>==</code> cho mảng tĩnh</td><td class="l"><code>s == t</code>, <code>s &lt; t</code> (theo thứ tự từ điển)</td></tr>
+</table></div>
+<p>Điểm khác lớn nhất: <code>string</code> có sẵn rất nhiều thao tác làm việc với <b>văn bản</b> (nối, cắt, tìm xâu con, ...), ta sẽ xem ở mục 3.</p>
+</section>
+
+<section id="nhap">
+<h2>2. Khai báo, nhập, xuất và duyệt</h2>
+<h3>Khai báo</h3>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+<span class="k">using namespace</span> std;
+
+string a;                       <span class="c">// xâu rỗng</span>
+string b = "hello";             <span class="c">// khởi tạo bằng hằng chuỗi</span>
+string c(5, 'x');               <span class="c">// "xxxxx": 5 ký tự 'x'</span>
+string d = b + " world";        <span class="c">// nối xâu: "hello world"</span></code></pre>
+<h3>Nhập xâu: <code>cin</code> và <code>getline</code></h3>
+<div class="tbl"><table>
+<tr><th>Cách nhập</th><th>Hoạt động</th><th>Với dòng <code>hello world</code></th></tr>
+<tr><td class="l"><code>cin &gt;&gt; s;</code></td><td class="l">đọc <b>một từ</b>, dừng ở khoảng trắng hoặc xuống dòng</td><td><code>s = "hello"</code></td></tr>
+<tr><td class="l"><code>getline(cin, s);</code></td><td class="l">đọc <b>cả dòng</b>, kể cả khoảng trắng</td><td><code>s = "hello world"</code></td></tr>
+</table></div>
+<div class="box w"><b>Lỗi hay gặp:</b> nếu đọc một số bằng <code>cin &gt;&gt; n;</code> rồi gọi ngay <code>getline(cin, s);</code>, <code>getline</code> sẽ đọc phần còn lại của dòng đầu (chỉ là ký tự xuống dòng) và cho <code>s</code> <b>rỗng</b>. Cần bỏ ký tự xuống dòng thừa trước:
+<pre><code><span class="k">int</span> n; cin &gt;&gt; n;
+cin.ignore();                   <span class="c">// bỏ ký tự xuống dòng còn lại</span>
+string s; getline(cin, s);</code></pre></div>
+<h3>Xuất và duyệt</h3>
+<pre><code>cout &lt;&lt; s &lt;&lt; "\n";                          <span class="c">// xuất cả xâu</span>
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; (<span class="k">int</span>)s.size(); i++) cout &lt;&lt; s[i] &lt;&lt; " ";   <span class="c">// duyệt theo chỉ số</span>
+<span class="k">for</span> (<span class="k">char</span> c : s) cout &lt;&lt; c;                  <span class="c">// duyệt từng ký tự (chỉ đọc)</span>
+<span class="k">for</span> (<span class="k">char</span> &amp;c : s) c = c + 1;                 <span class="c">// có &amp;: sửa trực tiếp từng ký tự</span></code></pre>
+</section>
+
+<section id="tt">
+<h2>3. Các thao tác thường dùng</h2>
+<div class="tbl"><table>
+<tr><th>Thao tác</th><th>Ý nghĩa</th><th>Ví dụ với <code>s = "hello world"</code></th></tr>
+<tr><td class="l"><code>s.size()</code></td><td class="l">số ký tự</td><td><code>11</code></td></tr>
+<tr><td class="l"><code>s.empty()</code></td><td class="l">xâu có rỗng không</td><td><code>false</code></td></tr>
+<tr><td class="l"><code>s.front()</code>, <code>s.back()</code></td><td class="l">ký tự đầu, cuối</td><td><code>'h'</code>, <code>'d'</code></td></tr>
+<tr><td class="l"><code>s.substr(pos, len)</code></td><td class="l">xâu con bắt đầu ở <code>pos</code>, dài <code>len</code> (bỏ <code>len</code> thì lấy đến hết)</td><td><code>s.substr(6, 5)</code> là <code>"world"</code></td></tr>
+<tr><td class="l"><code>s.find(t)</code></td><td class="l">vị trí xuất hiện <b>đầu tiên</b> của <code>t</code>; không có thì trả về <code>string::npos</code></td><td><code>s.find("o")</code> là <code>4</code>; <code>s.find("o", 5)</code> (từ vị trí 5) là <code>7</code></td></tr>
+<tr><td class="l"><code>s.insert(pos, t)</code></td><td class="l">chèn <code>t</code> vào vị trí <code>pos</code></td><td><code>s.insert(5, ",")</code> cho <code>"hello, world"</code></td></tr>
+<tr><td class="l"><code>s.erase(pos, len)</code></td><td class="l">xóa <code>len</code> ký tự từ <code>pos</code></td><td><code>s.erase(5, 1)</code> xóa dấu cách giữa</td></tr>
+<tr><td class="l"><code>s += t</code>, <code>s + t</code></td><td class="l">nối xâu</td><td><code>s + "!"</code> là <code>"hello world!"</code></td></tr>
+<tr><td class="l"><code>s == t</code>, <code>s &lt; t</code></td><td class="l">so sánh theo thứ tự từ điển (theo mã ký tự)</td><td><code>"apple" &lt; "banana"</code> đúng; <code>"abc" &lt; "abcd"</code> đúng</td></tr>
+<tr><td class="l"><code>reverse(s.begin(), s.end())</code></td><td class="l">đảo ngược xâu (<code>&lt;algorithm&gt;</code>)</td><td><code>"dlrow olleh"</code></td></tr>
+<tr><td class="l"><code>sort(s.begin(), s.end())</code></td><td class="l">sắp xếp các ký tự</td><td><code>" dehllloorw"</code></td></tr>
+<tr><td class="l"><code>to_string(x)</code>, <code>stoi(s)</code>, <code>stoll(s)</code></td><td class="l">đổi số sang xâu, xâu sang số</td><td><code>stoi("123") + 1</code> là <code>124</code></td></tr>
+</table></div>
+<div class="box">💡 <b>Cách dùng <code>find</code>:</b> luôn so sánh với <code>string::npos</code> để biết có tìm thấy không, ví dụ <code>if (s.find("z") == string::npos) cout &lt;&lt; "khong co";</code>. Các vị trí của <code>substr</code>, <code>find</code>, <code>insert</code>, <code>erase</code> đều đánh số từ 0.</div>
+</section>
+
+<section id="kt">
+<h2>4. Ký tự là một số nguyên (mã ASCII)</h2>
+<p>Mỗi ký tự được lưu như một <b>số nguyên nhỏ</b> theo bảng mã ASCII, nên làm được phép tính với ký tự. Ba mốc cần nhớ:</p>
+<div class="tbl"><table>
+<tr><th>Ký tự</th><td><code>'0'</code></td><td><code>'A'</code></td><td><code>'a'</code></td></tr>
+<tr><th>Mã</th><td>48</td><td>65</td><td>97</td></tr>
+</table></div>
+<p>Các chữ số, chữ hoa và chữ thường nằm <b>liên tiếp</b> trong bảng mã, nên:</p>
+<div class="tbl"><table>
+<tr><th>Việc cần làm</th><th>Cách viết</th><th>Ví dụ</th></tr>
+<tr><td class="l">Chữ số thành giá trị số</td><td class="l"><code>c - '0'</code></td><td><code>'7' - '0' = 7</code></td></tr>
+<tr><td class="l">Giá trị số thành chữ số</td><td class="l"><code>'0' + d</code></td><td><code>'0' + 4</code> là <code>'4'</code></td></tr>
+<tr><td class="l">Chữ cái thành chỉ số 0 đến 25</td><td class="l"><code>c - 'a'</code></td><td><code>'c' - 'a' = 2</code> (dùng cho mảng đếm <code>cnt[c - 'a']</code>)</td></tr>
+<tr><td class="l">Đổi chữ hoa, chữ thường</td><td class="l"><code>toupper(c)</code>, <code>tolower(c)</code></td><td><code>toupper('h')</code> là <code>'H'</code> (hoa và thường cách nhau 32)</td></tr>
+<tr><td class="l">Kiểm tra loại ký tự</td><td class="l"><code>isdigit(c)</code>, <code>isalpha(c)</code>, <code>isupper(c)</code>, <code>islower(c)</code></td><td><code>isdigit('5')</code> đúng</td></tr>
+</table></div>
+<p>Các hàm kiểm tra và đổi chữ nằm trong <code>&lt;cctype&gt;</code>. Chú ý: cộng hai <b>ký tự</b> là cộng hai mã số: <code>'a' + 'b'</code> bằng <code>195</code>, không phải xâu <code>"ab"</code>. Muốn nối ký tự thì dùng <code>s += c</code>.</p>
+<div class="box w"><b>Về chữ tiếng Việt có dấu:</b> chữ có dấu (ví dụ <code>"ă"</code>, <code>"ề"</code>) được lưu bằng nhiều byte (UTF-8), nên <code>s.size()</code> đếm số byte chứ không đếm số chữ. Các bài ở đây dùng chữ <b>không dấu</b> (ASCII).</div>
+</section>
+
+<section id="bt">
+<h2>5. Bài toán mẫu: kiểm tra xâu đối xứng</h2>
+<div class="box"><b>Đề bài.</b> Cho xâu <code>s</code> (không có khoảng trắng, độ dài <code>n ≤ 10<sup>6</sup></code>). In <code>YES</code> nếu <code>s</code> <b>đối xứng</b> (đọc xuôi và đọc ngược giống nhau), ngược lại <code>NO</code>.<br><i>Ví dụ:</i> <code>level</code> → <code>YES</code>; <code>hello</code> → <code>NO</code></div>
+<h3>Ý tưởng</h3>
+<p>Giống bài "mảng đối xứng" ở trang Mảng một chiều: ký tự đầu phải bằng ký tự cuối, ký tự thứ hai bằng ký tự áp chót, ... Tức là với mọi <code>i</code> phải có <b><code>s[i] == s[n − 1 − i]</code></b>. Chỉ cần kiểm tra <code>i</code> từ <code>0</code> đến <code>n/2 − 1</code>: mỗi cặp đối xứng được xét một lần, ký tự ở giữa (nếu <code>n</code> lẻ) tự bằng chính nó.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">int</span> main() {
+    string s; cin &gt;&gt; s;
+    <span class="k">int</span> n = s.size();
+    <span class="k">bool</span> ok = <span class="k">true</span>;
+    <span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n / 2; i++)
+        <span class="k">if</span> (s[i] != s[n - 1 - i]) { ok = <span class="k">false</span>; <span class="k">break</span>; }
+    cout &lt;&lt; (ok ? "YES" : "NO");
+}</code></pre>
+<p><b>Cách khác ngắn hơn:</b> tạo xâu đảo ngược rồi so sánh nguyên xâu: <code>string t(s.rbegin(), s.rend()); cout &lt;&lt; (s == t ? "YES" : "NO");</code></p>
+<h3>Chạy thử</h3>
+<div class="tbl"><table>
+<tr><th>Xâu</th><th>n</th><th>i</th><th>s[i]</th><th>s[n−1−i]</th><th>Kết quả</th></tr>
+<tr><td rowspan="2"><code>abcba</code></td><td rowspan="2">5</td><td>0</td><td>a</td><td>a</td><td>bằng nhau</td></tr>
+<tr><td>1</td><td>b</td><td>b</td><td>bằng nhau; <code>n/2 = 2</code> nên dừng → <b>YES</b></td></tr>
+<tr><td><code>hello</code></td><td>5</td><td>0</td><td>h</td><td>o</td><td>khác nhau → <b>NO</b> ngay</td></tr>
+</table></div>
+<p><b>Độ phức tạp:</b> <code>O(n)</code> thời gian, và dừng sớm ngay khi gặp cặp khác nhau. Dùng <code>int n = s.size();</code> để có số nguyên có dấu (lý do ở mục lưu ý).</p>
+</section>
+
+<section id="bai-tap">
+<h2>6. Bài tập nâng dần</h2>
+<p>Với mỗi bài hãy tự hỏi: <i>"nhập bằng <code>cin</code> hay <code>getline</code>? Duyệt theo chỉ số hay theo ký tự? Thao tác có sẵn nào của <code>string</code> dùng được?"</i></p>
+
+<div class="bt"><h3>Bài 1. Đảo ngược xâu <span class="lv">(cơ bản)</span></h3>
+<p>Cho một dòng văn bản (có thể có khoảng trắng). In dòng đó theo thứ tự ký tự ngược lại.<br><i>Ví dụ:</i> <code>hello world</code> → <code>dlrow olleh</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> vì có khoảng trắng nên đọc cả dòng bằng <code>getline</code>. Dùng <code>reverse</code> của thư viện.</p>
+<pre><code>string s; getline(cin, s);
+reverse(s.begin(), s.end());          <span class="c">// #include &lt;algorithm&gt;</span>
+cout &lt;&lt; s;</code></pre>
+<p><i>Kiểm tra:</i> <code>"hello world"</code> đảo ngược ra <code>"dlrow olleh"</code> ✔. Nếu <code>s</code> được đọc sau một lần <code>cin &gt;&gt; n</code>, nhớ <code>cin.ignore()</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 2. Đếm nguyên âm, phụ âm, chữ số <span class="lv">(dễ)</span></h3>
+<p>Cho một dòng văn bản. In ba số: số <b>nguyên âm</b> (<code>a e i o u</code>, cả hoa và thường), số <b>phụ âm</b> (các chữ cái còn lại), số <b>chữ số</b>. Các ký tự khác không tính.<br><i>Ví dụ:</i> <code>Hello World 123</code> → <code>3 7 3</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> duyệt từng ký tự, phân loại bằng <code>isdigit</code>, <code>isalpha</code>. Với chữ cái, đổi sang chữ thường rồi so với năm nguyên âm.</p>
+<pre><code>string s; getline(cin, s);
+<span class="k">int</span> v = 0, c = 0, d = 0;
+<span class="k">for</span> (<span class="k">char</span> ch : s) {
+    <span class="k">if</span> (isdigit(ch)) d++;
+    <span class="k">else if</span> (isalpha(ch)) {
+        <span class="k">char</span> l = tolower(ch);
+        <span class="k">if</span> (l == 'a' || l == 'e' || l == 'i' || l == 'o' || l == 'u') v++;
+        <span class="k">else</span> c++;
+    }
+}
+cout &lt;&lt; v &lt;&lt; " " &lt;&lt; c &lt;&lt; " " &lt;&lt; d;</code></pre>
+<p><i>Kiểm tra:</i> trong <code>Hello World 123</code> có 10 chữ cái: nguyên âm <code>e, o, o</code> (3), phụ âm <code>H, l, l, W, r, l, d</code> (7), và 3 chữ số ✔.</p></div></details></div>
+
+<div class="bt"><h3>Bài 3. Đếm số từ <span class="lv">(dễ)</span></h3>
+<p>Cho một dòng văn bản, các từ cách nhau bởi một hoặc nhiều khoảng trắng (đầu và cuối dòng cũng có thể có khoảng trắng thừa). Đếm số từ.<br><i>Ví dụ:</i> <code>"  xin   chao  cac ban "</code> → <code>4</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> nếu dùng <code>cin &gt;&gt; w</code> liên tiếp, mỗi lần đọc một <b>từ</b> và tự bỏ qua mọi khoảng trắng thừa. Có thể đọc từ chuỗi bằng <code>istringstream</code> (thư viện <code>&lt;sstream&gt;</code>) để đọc từng từ trong một dòng đã có sẵn.</p>
+<pre><code>string s; getline(cin, s);
+istringstream iss(s);
+string w; <span class="k">int</span> dem = 0;
+<span class="k">while</span> (iss &gt;&gt; w) dem++;
+cout &lt;&lt; dem;</code></pre>
+<p><i>Kiểm tra:</i> bỏ qua khoảng trắng thừa, đọc được <code>xin</code>, <code>chao</code>, <code>cac</code>, <code>ban</code> → <code>4</code> ✔. (Cách tự đếm: một "từ mới" bắt đầu ở ký tự không phải khoảng trắng mà ký tự đứng ngay trước nó là khoảng trắng hoặc không có.)</p></div></details></div>
+
+<div class="bt"><h3>Bài 4. Chuẩn hóa họ tên <span class="lv">(trung bình)</span></h3>
+<p>Cho một dòng họ tên (không dấu) có thể thừa khoảng trắng và hoa thường lộn xộn. In ra họ tên chuẩn: <b>mỗi từ viết hoa chữ cái đầu, các chữ còn lại viết thường</b>, các từ cách nhau đúng một khoảng trắng, không có khoảng trắng ở đầu và cuối.<br><i>Ví dụ:</i> <code>"  nGUYEN   van  an "</code> → <code>Nguyen Van An</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> tách từng từ bằng <code>istringstream</code> (như bài 3). Với mỗi từ: đổi hết sang chữ thường, rồi đổi chữ đầu thành chữ hoa. Nối vào kết quả, thêm một dấu cách <b>trước</b> mỗi từ trừ từ đầu tiên.</p>
+<pre><code>string s; getline(cin, s);
+istringstream iss(s);
+string w, kq;
+<span class="k">while</span> (iss &gt;&gt; w) {
+    <span class="k">for</span> (<span class="k">char</span> &amp;c : w) c = tolower(c);
+    w[0] = toupper(w[0]);
+    <span class="k">if</span> (!kq.empty()) kq += " ";
+    kq += w;
+}
+cout &lt;&lt; kq;</code></pre>
+<p><i>Kiểm tra:</i> các từ <code>nGUYEN</code>, <code>van</code>, <code>an</code> thành <code>Nguyen</code>, <code>Van</code>, <code>An</code> rồi nối bằng một dấu cách ✔.</p></div></details></div>
+
+<div class="bt"><h3>Bài 5. Cộng hai số rất lớn <span class="lv">(khá)</span></h3>
+<p>Cho hai số nguyên không âm, mỗi số có tới <code>10<sup>5</sup></code> chữ số, cho dưới dạng xâu. In tổng của chúng.<br><i>Ví dụ:</i> <code>99999</code> và <code>1</code> → <code>100000</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> số quá lớn nên không lưu được vào <code>long long</code>; ta cộng bằng tay như ở tiểu học. Đi từ <b>chữ số cuối</b> về đầu của cả hai xâu, cộng hai chữ số cùng hàng và số <b>nhớ</b> (<code>carry</code>), ghi chữ số hàng đơn vị của tổng, nhớ phần chục. Tiếp tục đến khi hết cả hai xâu và hết nhớ. Kết quả ghi theo thứ tự ngược nên cuối cùng đảo lại.</p>
+<pre><code>string a, b; cin &gt;&gt; a &gt;&gt; b;
+string r;
+<span class="k">int</span> i = a.size() - 1, j = b.size() - 1, nho = 0;
+<span class="k">while</span> (i &gt;= 0 || j &gt;= 0 || nho) {
+    <span class="k">int</span> t = nho;
+    <span class="k">if</span> (i &gt;= 0) t += a[i--] - '0';       <span class="c">// chữ số thành giá trị</span>
+    <span class="k">if</span> (j &gt;= 0) t += b[j--] - '0';
+    r.push_back('0' + t % 10);               <span class="c">// giá trị thành chữ số</span>
+    nho = t / 10;
+}
+reverse(r.begin(), r.end());
+cout &lt;&lt; r;</code></pre>
+<p><i>Chạy thử</i> <code>99999 + 1</code>: từ phải sang trái được <code>9+1=10</code> (ghi 0, nhớ 1), rồi bốn lần <code>9 + nhớ 1 = 10</code> (ghi 0, nhớ 1), cuối cùng còn nhớ 1 (ghi 1) → ghi ngược <code>000001</code>, đảo lại <code>100000</code> ✔. Độ phức tạp <code>O(độ dài)</code>. Bài này dùng cả <code>c - '0'</code> lẫn <code>'0' + d</code> ở mục 4.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Đối xứng sau khi xóa tối đa một ký tự <span class="lv">(khó)</span></h3>
+<p>Cho xâu <code>s</code> (độ dài <code>n ≤ 10<sup>6</sup></code>). Có thể <b>xóa tối đa một ký tự</b> (hoặc không xóa) để xâu còn lại đối xứng không? In <code>YES</code>/<code>NO</code>.<br><i>Ví dụ:</i> <code>abca</code> → <code>YES</code> (xóa <code>c</code> được <code>aba</code>); <code>abc</code> → <code>NO</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> thử xóa từng ký tự rồi kiểm tra đối xứng thì tốn <code>O(n²)</code>. Dùng <b>hai con trỏ</b> từ hai đầu vào giữa như bài mẫu: khi <code>s[l] == s[r]</code> thì thu hẹp. Lần đầu gặp <b>cặp khác nhau</b>, ta buộc phải xóa một trong hai ký tự đó: xóa <code>s[l]</code> (kiểm tra đoạn <code>[l+1, r]</code> có đối xứng không) hoặc xóa <code>s[r]</code> (đoạn <code>[l, r−1]</code>). Nếu một trong hai đoạn đối xứng thì <code>YES</code>. Chỉ cần thử hai khả năng này, không phải thử mọi vị trí.</p>
+<pre><code><span class="k">bool</span> doiXung(<span class="k">const</span> string &amp;s, <span class="k">int</span> l, <span class="k">int</span> r) {
+    <span class="k">while</span> (l &lt; r) {
+        <span class="k">if</span> (s[l] != s[r]) <span class="k">return false</span>;
+        l++; r--;
+    }
+    <span class="k">return true</span>;
+}
+
+<span class="c">// trong main</span>
+<span class="k">int</span> l = 0, r = s.size() - 1; <span class="k">bool</span> ok = <span class="k">true</span>;
+<span class="k">while</span> (l &lt; r) {
+    <span class="k">if</span> (s[l] == s[r]) { l++; r--; }
+    <span class="k">else</span> { ok = doiXung(s, l + 1, r) || doiXung(s, l, r - 1); <span class="k">break</span>; }
+}
+cout &lt;&lt; (ok ? "YES" : "NO");</code></pre>
+<p><i>Chạy thử</i> <code>abca</code>: <code>a = a</code> thu hẹp về <code>l=1, r=2</code>; <code>b ≠ c</code>: thử xóa <code>b</code> (đoạn <code>"c"</code> đối xứng) → <b>YES</b>. Với <code>abc</code>: <code>a ≠ c</code>, đoạn <code>"bc"</code> và <code>"ab"</code> đều không đối xứng → <b>NO</b> ✔. Độ phức tạp <code>O(n)</code>.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>7. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b><code>getline</code> sau <code>cin &gt;&gt;</code>:</b> phải gọi <code>cin.ignore()</code> trước, nếu không <code>getline</code> trả về xâu rỗng (xem mục 2).</div>
+<div class="box w"><b><code>s.size()</code> là số không dấu:</b> nếu <code>s</code> rỗng thì <code>s.size() - 1</code> không bằng <code>-1</code> mà là một số cực lớn, và <code>i &lt; s.size() - 1</code> có thể chạy sai. Hãy lưu <code>int n = s.size();</code> rồi dùng <code>n</code>.</div>
+<div class="box w"><b>Truy cập ngoài phạm vi:</b> <code>s[i]</code> chỉ hợp lệ với <code>0 ≤ i &lt; n</code>. Truy cập <code>s[n]</code> hoặc <code>s[-1]</code> là lỗi (có thể không báo ngay).</div>
+<div class="box w"><b>Nhầm <code>'a'</code> với <code>"a"</code>:</b> nháy đơn là ký tự, nháy kép là xâu. <code>'a' + 'b'</code> cộng hai mã số (<code>195</code>), không nối xâu; muốn nối dùng <code>s += c</code> hoặc <code>s + t</code> với ít nhất một vế là <code>string</code>.</div>
+<div class="box w"><b><code>find</code> không thấy:</b> trả về <code>string::npos</code>, không phải <code>-1</code> thông thường. So sánh bằng <code>== string::npos</code>.</div>
+<div class="box w"><b>Chèn hoặc xóa ở đầu/giữa trong vòng lặp:</b> <code>s.insert(0, ...)</code>, <code>s.erase(i, 1)</code> tốn <code>O(n)</code> mỗi lần, dùng trong vòng lặp thành <code>O(n²)</code>. Thêm vào cuối (<code>s += c</code>) thì nhanh. Nếu cần chèn đầu, hãy xây xâu ngược rồi <code>reverse</code> một lần (như bài 5).</div>
+<div class="box w"><b>Chữ tiếng Việt có dấu:</b> <code>s.size()</code> đếm byte, không đếm chữ; các bài tập chỉ dùng chữ không dấu.</div>
+<div class="box"><b>Tóm tắt:</b> <code>string</code> là dãy ký tự đánh số từ 0 (<code>s[i]</code>, <code>s.size()</code>), nhập một từ bằng <code>cin</code>, cả dòng bằng <code>getline</code>. Có sẵn <code>substr</code>, <code>find</code>, <code>insert</code>, <code>erase</code>, <code>+</code>, so sánh, <code>reverse</code>, <code>sort</code>. Ký tự là số (mã ASCII): <code>c - '0'</code>, <code>c - 'a'</code>, <code>tolower</code>, <code>toupper</code>. Kỹ thuật hai đầu (<code>s[i]</code> với <code>s[n−1−i]</code>) giống mảng đối xứng.<br><b>Chủ đề tiếp theo:</b> Xử lý xâu cơ bản (tách từ, anagram, đếm tần suất ký tự).</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

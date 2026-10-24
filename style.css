@@ -1,0 +1,51 @@
+
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #080808;
+    color: #fefbfb;
+}
+.dau-trang {
+    background-color: #010101;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+#nut-giao-dien { padding: 8px 12px; cursor: pointer; border: none; border-radius: 4px; }
+
+/* Bố cục 2 cột chính */
+.than-trang {
+    display: flex;
+    max-width: 1200px;
+    margin: 20px auto;
+    gap: 20px;
+    padding: 0 20px;
+}
+.menu-cay {
+    flex: 1;
+    background-color: rgb(28, 28, 28);
+    padding: 20px;
+    border-radius: 6px;
+    min-height: 600px;
+}
+.menu-cay ul { list-style: none; }
+.tieu-de-nhanh { display: block; padding: 8px 0; cursor: pointer; font-weight: bold; }
+.cay-con { padding-left: 20px; display: none; } /* Mặc định ẩn, bấm mới mở */
+.muc-bai-hoc { padding: 6px 0; cursor: pointer; color: #f6f2f2; }
+.muc-bai-hoc:hover { color: #007acc; }
+
+.khu-vuc-noi-dung {
+    flex: 3;
+    background-color: #121212;
+    padding: 30px;
+    border-radius: 6px;
+}
+
+/* Giao diện sáng
+ */
+body.light-mode { background-color: white; color: #333; }
+body.light-mode .menu-cay, body.light-mode .khu-vuc-noi-dung { background-color: #f0f0f0; }
+body.light-mode .muc-bai-hoc { color: #555; }

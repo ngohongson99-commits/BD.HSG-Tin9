@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mảng một chiều trong C++ cho người mới</title>
+<style>
+:root{--bg:#1f2328;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{border:1px solid var(--bd);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--code)}
+.idx{display:flex;gap:4px;margin:10px 0;overflow-x:auto}
+.idx div{min-width:52px;text-align:center}
+.idx b{display:block;border:2px solid var(--ac);padding:6px 0;border-radius:6px}
+.idx span{font-size:.8rem;color:var(--mut)}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>📚 Mảng một chiều trong C++</h1>
+<p>Dành cho người mới: mảng tĩnh <code>int a[]</code> và <code>vector&lt;int&gt;</code></p>
+</header>
+<nav>
+<a href="#dn">1. Định nghĩa</a><a href="#tinh">2. Mảng tĩnh</a><a href="#vec">3. Vector</a><a href="#ss">4. So sánh</a><a href="#bt">5. Bài toán cơ bản</a><a href="#loi">6. Lỗi thường gặp</a><a href="#bai-tap">7. Bài tập</a>
+</nav>
+<main>
+
+<section id="dn">
+<h2>1. Mảng một chiều là gì?</h2>
+<p>Mảng một chiều là một <b>dãy các phần tử cùng kiểu dữ liệu</b>, nằm liên tiếp nhau trong bộ nhớ, và được truy cập bằng <b>chỉ số (index)</b>. Chỉ số trong C++ <b>bắt đầu từ 0</b>.</p>
+<div class="idx">
+<div><b>5</b><span>a[0]</span></div><div><b>8</b><span>a[1]</span></div><div><b>2</b><span>a[2]</span></div><div><b>9</b><span>a[3]</span></div><div><b>4</b><span>a[4]</span></div>
+</div>
+<p>Mảng có 5 phần tử thì chỉ số hợp lệ là từ <code>0</code> đến <code>4</code> (tức <code>n-1</code>).</p>
+<div class="box">💡 Ví dụ thực tế: lưu điểm của 30 học sinh, nhiệt độ 7 ngày trong tuần, … thay vì tạo 30 biến riêng lẻ.</div>
+</section>
+
+<section id="tinh">
+<h2>2. Mảng tĩnh <code>int a[]</code></h2>
+<p>Kích thước mảng phải là <b>hằng số</b>, cố định ngay khi viết chương trình.</p>
+
+<h3>Khai báo</h3>
+<pre><code><span class="k">int</span> a[5];                    <span class="c">// 5 phần tử, giá trị chưa xác định (rác)</span>
+<span class="k">int</span> b[5] = {1, 2, 3, 4, 5};   <span class="c">// khai báo và gán giá trị</span>
+<span class="k">int</span> c[5] = {1, 2};            <span class="c">// c = {1, 2, 0, 0, 0} (phần còn lại là 0)</span>
+<span class="k">int</span> d[5] = {};                <span class="c">// tất cả bằng 0</span>
+<span class="k">int</span> e[] = {7, 8, 9};          <span class="c">// tự suy ra kích thước = 3</span>
+<span class="k">const int</span> N = 100;
+<span class="k">int</span> f[N];                    <span class="c">// dùng hằng số làm kích thước</span></code></pre>
+
+<h3>Truy cập phần tử</h3>
+<pre><code>b[0] = 10;            <span class="c">// gán phần tử đầu</span>
+<span class="k">int</span> x = b[2];         <span class="c">// đọc phần tử thứ 3</span></code></pre>
+
+<h3>Nhập, xuất mảng</h3>
+<pre><code>#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">int</span> main() {
+    <span class="k">int</span> a[100], n;
+    cin &gt;&gt; n;                         <span class="c">// n &lt;= 100</span>
+    <span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++)
+        cin &gt;&gt; a[i];                  <span class="c">// nhập</span>
+    <span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++)
+        cout &lt;&lt; a[i] &lt;&lt; " ";          <span class="c">// xuất</span>
+    <span class="k">return</span> 0;
+}</code></pre>
+
+<h3>Duyệt bằng range-for (C++11)</h3>
+<pre><code><span class="k">int</span> b[5] = {1, 2, 3, 4, 5};
+<span class="k">for</span> (<span class="k">int</span> x : b) cout &lt;&lt; x &lt;&lt; " ";</code></pre>
+
+<div class="box w">⚠️ Mảng tĩnh <b>không tự biết độ dài</b> và <b>không tự kiểm tra</b> chỉ số. Ta phải tự quản lý biến <code>n</code>. Số phần tử khai báo (ví dụ 100) là sức chứa tối đa, còn <code>n</code> là số phần tử đang dùng.</div>
+</section>
+
+<section id="vec">
+<h2>3. Vector <code>vector&lt;int&gt;</code></h2>
+<p>Vector là "mảng động" của thư viện chuẩn: <b>tự thay đổi kích thước</b>, biết độ dài của chính nó. Cần <code>#include &lt;vector&gt;</code>.</p>
+
+<h3>Khai báo</h3>
+<pre><code>#include &lt;vector&gt;
+<span class="k">using namespace</span> std;
+
+vector&lt;<span class="k">int</span>&gt; v1;                  <span class="c">// rỗng, 0 phần tử</span>
+vector&lt;<span class="k">int</span>&gt; v2(5);               <span class="c">// 5 phần tử, đều bằng 0</span>
+vector&lt;<span class="k">int</span>&gt; v3(5, 7);            <span class="c">// 5 phần tử, đều bằng 7</span>
+vector&lt;<span class="k">int</span>&gt; v4 = {1, 2, 3};      <span class="c">// khởi tạo bằng danh sách</span>
+vector&lt;<span class="k">int</span>&gt; v5(v4);              <span class="c">// sao chép từ v4</span></code></pre>
+
+<h3>Các thao tác thường dùng</h3>
+<div class="tbl"><table>
+<tr><th>Thao tác</th><th>Cú pháp</th><th>Ý nghĩa</th></tr>
+<tr><td>Số phần tử</td><td><code>v.size()</code></td><td>Trả về số phần tử hiện có</td></tr>
+<tr><td>Kiểm tra rỗng</td><td><code>v.empty()</code></td><td><code>true</code> nếu không có phần tử</td></tr>
+<tr><td>Truy cập</td><td><code>v[i]</code>, <code>v.at(i)</code></td><td><code>at</code> báo lỗi nếu sai chỉ số</td></tr>
+<tr><td>Đầu / cuối</td><td><code>v.front()</code>, <code>v.back()</code></td><td>Phần tử đầu / cuối</td></tr>
+<tr><td>Thêm cuối</td><td><code>v.push_back(x)</code></td><td>Thêm x vào cuối</td></tr>
+<tr><td>Xóa cuối</td><td><code>v.pop_back()</code></td><td>Bỏ phần tử cuối</td></tr>
+<tr><td>Chèn</td><td><code>v.insert(v.begin()+i, x)</code></td><td>Chèn x vào vị trí i</td></tr>
+<tr><td>Xóa tại i</td><td><code>v.erase(v.begin()+i)</code></td><td>Xóa phần tử ở vị trí i</td></tr>
+<tr><td>Xóa hết</td><td><code>v.clear()</code></td><td>Làm vector rỗng</td></tr>
+<tr><td>Đổi kích thước</td><td><code>v.resize(k)</code></td><td>Cắt bớt hoặc thêm số 0</td></tr>
+</table></div>
+
+<h3>Ví dụ</h3>
+<pre><code>vector&lt;<span class="k">int</span>&gt; v;
+v.push_back(5);
+v.push_back(8);
+v.push_back(2);                     <span class="c">// v = {5, 8, 2}</span>
+cout &lt;&lt; v.size();                   <span class="c">// 3</span>
+v.insert(v.begin() + 1, 100);       <span class="c">// v = {5, 100, 8, 2}</span>
+v.erase(v.begin());                 <span class="c">// v = {100, 8, 2}</span>
+v.pop_back();                       <span class="c">// v = {100, 8}</span>
+
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; (<span class="k">int</span>)v.size(); i++) cout &lt;&lt; v[i] &lt;&lt; " ";
+<span class="k">for</span> (<span class="k">int</span> x : v) cout &lt;&lt; x &lt;&lt; " ";    <span class="c">// cách ngắn gọn hơn</span></code></pre>
+
+<h3>Nhập n số vào vector</h3>
+<pre><code><span class="k">int</span> n; cin &gt;&gt; n;
+vector&lt;<span class="k">int</span>&gt; v(n);
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) cin &gt;&gt; v[i];</code></pre>
+<div class="box">💡 Sau <code>vector&lt;int&gt; v(n)</code> đã có sẵn n phần tử nên dùng <code>v[i]</code>. Nếu khai báo <code>vector&lt;int&gt; v;</code> (rỗng) thì phải dùng <code>push_back</code>, không được gán <code>v[0] = ...</code>.</div>
+</section>
+
+<section id="ss">
+<h2>4. So sánh mảng tĩnh và vector</h2>
+<div class="tbl"><table>
+<tr><th></th><th>Mảng tĩnh <code>int a[N]</code></th><th><code>vector&lt;int&gt;</code></th></tr>
+<tr><td>Kích thước</td><td>Cố định, là hằng số</td><td>Thay đổi được khi chạy</td></tr>
+<tr><td>Biết độ dài</td><td>Không, phải tự nhớ <code>n</code></td><td>Có, <code>v.size()</code></td></tr>
+<tr><td>Thêm / xóa cuối</td><td>Không hỗ trợ trực tiếp</td><td><code>push_back</code>, <code>pop_back</code></td></tr>
+<tr><td>Gán cả mảng</td><td>Không thể <code>a = b</code></td><td>Được <code>v1 = v2</code></td></tr>
+<tr><td>Thư viện</td><td>Không cần</td><td><code>&lt;vector&gt;</code></td></tr>
+<tr><td>Khi nào dùng</td><td>Biết trước số lượng tối đa, bài đơn giản</td><td>Số lượng chưa biết trước, cần thêm/xóa</td></tr>
+</table></div>
+</section>
+
+<section id="bt">
+<h2>5. Một số bài toán cơ bản</h2>
+<p>Mỗi bài có phần mảng tĩnh; phần vector rất tương tự (đổi <code>n</code> thành <code>v.size()</code>).</p>
+
+<h3>Bài 1. Tính tổng các phần tử</h3>
+<pre><code><span class="k">long long</span> s = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) s += a[i];
+cout &lt;&lt; s;</code></pre>
+
+<h3>Bài 2. Tìm giá trị lớn nhất, nhỏ nhất</h3>
+<pre><code><span class="k">int</span> mx = a[0], mn = a[0];
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt; n; i++) {
+    <span class="k">if</span> (a[i] &gt; mx) mx = a[i];
+    <span class="k">if</span> (a[i] &lt; mn) mn = a[i];
+}
+cout &lt;&lt; mx &lt;&lt; " " &lt;&lt; mn;</code></pre>
+<p><i>Ý tưởng:</i> giả sử phần tử đầu là lớn nhất, rồi so sánh dần với các phần tử còn lại.</p>
+
+<h3>Bài 3. Đếm số chẵn và số lẻ</h3>
+<pre><code><span class="k">int</span> chan = 0, le = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++)
+    <span class="k">if</span> (a[i] % 2 == 0) chan++; <span class="k">else</span> le++;</code></pre>
+
+<h3>Bài 4. Tìm kiếm tuyến tính</h3>
+<p>Cho số <code>x</code>, tìm vị trí xuất hiện đầu tiên trong mảng (không có thì in -1).</p>
+<pre><code><span class="k">int</span> pos = -1;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++)
+    <span class="k">if</span> (a[i] == x) { pos = i; <span class="k">break</span>; }
+cout &lt;&lt; pos;</code></pre>
+
+<h3>Bài 5. Đảo ngược mảng</h3>
+<pre><code><span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n / 2; i++)
+    swap(a[i], a[n - 1 - i]);</code></pre>
+<p>Với vector có thể dùng <code>reverse(v.begin(), v.end());</code> (thêm <code>#include &lt;algorithm&gt;</code>).</p>
+
+<h3>Bài 6. Sắp xếp tăng dần (nổi bọt)</h3>
+<pre><code><span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n - 1; i++)
+    <span class="k">for</span> (<span class="k">int</span> j = 0; j &lt; n - 1 - i; j++)
+        <span class="k">if</span> (a[j] &gt; a[j + 1]) swap(a[j], a[j + 1]);</code></pre>
+<p>Cách nhanh, dùng thư viện:</p>
+<pre><code>#include &lt;algorithm&gt;
+sort(a, a + n);                 <span class="c">// mảng tĩnh</span>
+sort(v.begin(), v.end());       <span class="c">// vector</span></code></pre>
+
+<h3>Bài 7. Chương trình hoàn chỉnh với vector</h3>
+<p>Nhập n số, in ra tổng, số lớn nhất và các số chẵn.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">int</span> main() {
+    <span class="k">int</span> n; cin &gt;&gt; n;
+    vector&lt;<span class="k">int</span>&gt; v(n);
+    <span class="k">for</span> (<span class="k">int</span> &amp;x : v) cin &gt;&gt; x;
+
+    <span class="k">long long</span> s = 0; <span class="k">int</span> mx = v[0];
+    vector&lt;<span class="k">int</span>&gt; chan;
+    <span class="k">for</span> (<span class="k">int</span> x : v) {
+        s += x;
+        <span class="k">if</span> (x &gt; mx) mx = x;
+        <span class="k">if</span> (x % 2 == 0) chan.push_back(x);
+    }
+    cout &lt;&lt; "Tong: " &lt;&lt; s &lt;&lt; "\nMax: " &lt;&lt; mx &lt;&lt; "\nSo chan: ";
+    <span class="k">for</span> (<span class="k">int</span> x : chan) cout &lt;&lt; x &lt;&lt; " ";
+}</code></pre>
+
+<h3>Bài tập tự luyện</h3>
+<p>👉 Đề kèm lời giải nằm ở <a href="#bai-tap">mục 7</a>.</p>
+<ol>
+<li>Tính trung bình cộng các phần tử.</li>
+<li>Đếm số lần xuất hiện của giá trị <code>x</code>.</li>
+<li>Tìm giá trị lớn thứ hai trong mảng.</li>
+<li>Kiểm tra mảng có đối xứng (đọc xuôi ngược giống nhau) không.</li>
+<li>Xóa phần tử tại vị trí k của mảng.</li>
+<li>Tách các số âm và số dương vào hai vector khác nhau.</li>
+</ol>
+</section>
+
+<section id="loi">
+<h2>6. Lỗi thường gặp</h2>
+<div class="box w"><b>Truy cập ngoài phạm vi:</b> <code>a[5]</code> với mảng 5 phần tử là sai (chỉ số hợp lệ 0..4). Chương trình có thể chạy sai hoặc bị crash mà không báo lỗi rõ ràng.</div>
+<div class="box w"><b>Quên khởi tạo:</b> mảng khai báo trong hàm <code>int a[5];</code> chứa giá trị rác. Hãy gán <code>{}</code> hoặc dùng vòng lặp để gán 0 trước khi cộng dồn.</div>
+<div class="box w"><b>Vòng lặp lệch 1:</b> dùng <code>i &lt;= n</code> thay vì <code>i &lt; n</code>.</div>
+<div class="box w"><b>Vector rỗng mà dùng <code>v[i]</code>:</b> hãy dùng <code>push_back</code> hoặc khai báo kích thước trước.</div>
+<div class="box w"><b>So sánh kiểu:</b> <code>i &lt; v.size()</code> có thể cảnh báo vì <code>size()</code> là số không dấu. Viết <code>i &lt; (int)v.size()</code>.</div>
+<div class="box w"><b>Mảng lớn trong main:</b> khai báo như <code>int a[10000000];</code> trong hàm có thể tràn stack. Hãy khai báo toàn cục hoặc dùng vector.</div>
+</section>
+
+<section id="bai-tap">
+<h2>7. Bài tập có lời giải</h2>
+<p>Hãy tự làm trước, sau đó bấm <b>Xem lời giải</b> để đối chiếu hướng dẫn và code.</p>
+
+<div class="bt"><h3>Bài 1. Trung bình cộng</h3>
+<p>Cho mảng gồm <code>n</code> số nguyên. In ra trung bình cộng của các phần tử (làm tròn 2 chữ số thập phân).</p>
+<p><i>Ví dụ:</i> <code>n = 4</code>, mảng <code>1 2 3 5</code> → <code>2.75</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> tính tổng như bài 1 ở mục 5, rồi chia cho <code>n</code>. Chú ý phải ép kiểu sang <code>double</code> trước khi chia, nếu không phép chia hai số nguyên sẽ cắt phần thập phân.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int n; cin &gt;&gt; n;
+    vector&lt;int&gt; v(n);
+    long long s = 0;
+    for (int i = 0; i &lt; n; i++) { cin &gt;&gt; v[i]; s += v[i]; }
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2) &lt;&lt; (double)s / n;
+}</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 2. Đếm số lần xuất hiện</h3>
+<p>Cho mảng <code>n</code> số nguyên và một số <code>x</code>. Đếm xem <code>x</code> xuất hiện bao nhiêu lần.</p>
+<p><i>Ví dụ:</i> mảng <code>3 5 3 7 3</code>, <code>x = 3</code> → <code>3</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> dùng biến đếm <code>cnt = 0</code>. Duyệt từng phần tử, nếu bằng <code>x</code> thì tăng <code>cnt</code>. Khác với tìm kiếm, ở đây <b>không</b> được <code>break</code> vì phải duyệt hết mảng.</p>
+<pre><code>int cnt = 0;
+for (int i = 0; i &lt; n; i++)
+    if (a[i] == x) cnt++;
+cout &lt;&lt; cnt;</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 3. Giá trị lớn thứ hai</h3>
+<p>Tìm số lớn thứ hai (nhỏ hơn hẳn số lớn nhất) trong mảng. Nếu không có, in <code>Khong co</code>.</p>
+<p><i>Ví dụ:</i> mảng <code>4 9 9 2 7</code> → <code>7</code>; mảng <code>5 5 5</code> → <code>Khong co</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> giữ hai biến <code>m1</code> (lớn nhất) và <code>m2</code> (lớn thứ hai), khởi tạo rất nhỏ. Khi gặp số lớn hơn <code>m1</code>, đẩy <code>m1</code> xuống thành <code>m2</code> rồi cập nhật <code>m1</code>. Ngược lại, nếu số đó nhỏ hơn <code>m1</code> nhưng lớn hơn <code>m2</code> thì cập nhật <code>m2</code>. Điều kiện "nhỏ hơn hẳn" giúp bỏ qua các số trùng với max.</p>
+<pre><code>#include &lt;climits&gt;
+
+int m1 = INT_MIN, m2 = INT_MIN;
+for (int i = 0; i &lt; n; i++) {
+    if (a[i] &gt; m1) { m2 = m1; m1 = a[i]; }
+    else if (a[i] &lt; m1 &amp;&amp; a[i] &gt; m2) m2 = a[i];
+}
+if (m2 == INT_MIN) cout &lt;&lt; "Khong co";
+else cout &lt;&lt; m2;</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 4. Mảng đối xứng</h3>
+<p>Kiểm tra mảng có đối xứng không (đọc từ trái sang phải và từ phải sang trái giống nhau). In <code>YES</code> hoặc <code>NO</code>.</p>
+<p><i>Ví dụ:</i> <code>1 2 3 2 1</code> → <code>YES</code>; <code>1 2 3 4</code> → <code>NO</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> so sánh cặp phần tử đối xứng nhau: <code>a[i]</code> với <code>a[n-1-i]</code>, chỉ cần duyệt đến giữa mảng (<code>i &lt; n/2</code>). Chỉ cần một cặp khác nhau là kết luận <code>NO</code>.</p>
+<pre><code>bool ok = true;
+for (int i = 0; i &lt; n / 2; i++) {
+    if (a[i] != a[n - 1 - i]) { ok = false; break; }
+}
+cout &lt;&lt; (ok ? "YES" : "NO");</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 5. Xóa phần tử tại vị trí k</h3>
+<p>Cho mảng <code>n</code> số và vị trí <code>k</code> (đánh số từ 0). Xóa phần tử tại vị trí <code>k</code> rồi in mảng mới.</p>
+<p><i>Ví dụ:</i> mảng <code>5 8 2 9 4</code>, <code>k = 2</code> → <code>5 8 9 4</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn (mảng tĩnh):</b> dồn các phần tử bên phải <code>k</code> sang trái một ô, rồi giảm <code>n</code> đi 1.</p>
+<pre><code>for (int i = k; i &lt; n - 1; i++)
+    a[i] = a[i + 1];
+n--;
+for (int i = 0; i &lt; n; i++) cout &lt;&lt; a[i] &lt;&lt; " ";</code></pre>
+<p><b>Với vector</b> chỉ cần một dòng:</p>
+<pre><code>v.erase(v.begin() + k);
+for (int x : v) cout &lt;&lt; x &lt;&lt; " ";</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 6. Tách số âm và số dương</h3>
+<p>Cho mảng <code>n</code> số nguyên. Đưa các số âm vào một vector, các số dương vào một vector khác (bỏ qua số 0), rồi in hai vector.</p>
+<p><i>Ví dụ:</i> mảng <code>3 -1 0 -5 8</code> → âm: <code>-1 -5</code>, dương: <code>3 8</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> vì chưa biết trước mỗi loại có bao nhiêu số, đây là lúc vector phát huy tác dụng: khai báo hai vector rỗng và dùng <code>push_back</code> để thêm phần tử phù hợp khi duyệt.</p>
+<pre><code>vector&lt;int&gt; am, duong;
+for (int i = 0; i &lt; n; i++) {
+    if (a[i] &lt; 0) am.push_back(a[i]);
+    else if (a[i] &gt; 0) duong.push_back(a[i]);
+}
+cout &lt;&lt; "Am: ";
+for (int x : am) cout &lt;&lt; x &lt;&lt; " ";
+cout &lt;&lt; "\nDuong: ";
+for (int x : duong) cout &lt;&lt; x &lt;&lt; " ";</code></pre></div></details></div>
+</section>
+
+</main>
+<footer>Chúc bạn học tốt! 🚀</footer>
+</body>
+</html>
