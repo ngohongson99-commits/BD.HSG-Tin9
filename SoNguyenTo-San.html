@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Số nguyên tố: thử chia và sàng trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;--out:#ffd2d2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+td.o{background:var(--out)}
+td.l{text-align:left}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>🧮 Số nguyên tố: thử chia và sàng</h1>
+<p>Từ kiểm tra một số đến sàng Eratosthenes: khi nào dùng cách nào</p>
+</header>
+<nav>
+<a href="#bt">1. Bậc 1: thử chia</a><a href="#b2">2. Bậc 2: sàng</a><a href="#b3">3. Bậc 3: truy vấn</a><a href="#b4">4. Bậc 4: phân tích</a><a href="#chon">5. Chọn phương pháp</a><a href="#bai-tap">6. Bài tập</a><a href="#luu">7. Lưu ý</a>
+</nav>
+<main>
+
+<section id="bt">
+<h2>1. Bài toán xuyên suốt và bậc 1: kiểm tra một số</h2>
+<div class="box">📌 <b>Nhắc lại.</b> <b>Số nguyên tố</b> là số tự nhiên lớn hơn 1 chỉ có đúng hai ước là <code>1</code> và chính nó (nói cách khác, số ước bằng 2). <code>2</code> là số nguyên tố chẵn duy nhất. <code>0</code> và <code>1</code> <b>không</b> phải số nguyên tố.</div>
+<p>Trang này chỉ có một câu hỏi lớn: <b>làm sao nhận biết và liệt kê số nguyên tố?</b> Ta giữ nguyên đề nhưng đổi dần ràng buộc, và mỗi lần đổi thì cách cũ không còn đủ nhanh.</p>
+<div class="tbl"><table>
+<tr><th>Bậc</th><th>Đề</th><th>Phương pháp</th></tr>
+<tr><td>1</td><td class="l">Kiểm tra <b>một</b> số <code>n ≤ 10<sup>12</sup></code> có phải số nguyên tố; phân tích <code>n</code> ra thừa số</td><td class="l">Thử chia đến <code>√n</code></td></tr>
+<tr><td>2</td><td class="l">Liệt kê <b>tất cả</b> số nguyên tố <code>≤ 10<sup>7</sup></code></td><td class="l">Sàng Eratosthenes</td></tr>
+<tr><td>3</td><td class="l"><b>Nhiều truy vấn</b> "có bao nhiêu số nguyên tố trong <code>[l, r]</code>"</td><td class="l">Sàng + mảng cộng dồn</td></tr>
+<tr><td>4</td><td class="l">Phân tích thừa số <b>rất nhiều</b> số nhỏ</td><td class="l">Sàng ước nguyên tố nhỏ nhất</td></tr>
+</table></div>
+
+<h3>Bậc 1: kiểm tra một số</h3>
+<div class="box"><b>Đề bài.</b> Cho <code>n ≤ 10<sup>12</sup></code>. In <code>YES</code> nếu <code>n</code> là số nguyên tố, ngược lại <code>NO</code>.<br><i>Ví dụ:</i> <code>97</code> → <code>YES</code>; <code>91</code> → <code>NO</code> (91 = 7 × 13)</div>
+<p><b>Cách ngây thơ:</b> thử mọi <code>d</code> từ 2 đến <code>n − 1</code>: <code>10<sup>12</sup></code> phép chia, gần ba tiếng. Nhưng ở trang <b>Chia hết, ước và bội</b> ta đã biết: <b>ước đi theo cặp</b> <code>(d, n/d)</code> và một số trong cặp không vượt quá <code>√n</code>. Nếu <code>n</code> là hợp số thì nó có ước <code>d</code> với <code>2 ≤ d ≤ √n</code>. Vậy chỉ cần thử <code>d</code> đến <code>√n</code>.</p>
+<pre><code><span class="k">bool</span> laNguyenTo(<span class="k">long long</span> n) {
+    <span class="k">if</span> (n &lt; 2) <span class="k">return false</span>;
+    <span class="k">for</span> (<span class="k">long long</span> d = 2; d * d &lt;= n; d++)
+        <span class="k">if</span> (n % d == 0) <span class="k">return false</span>;
+    <span class="k">return true</span>;
+}</code></pre>
+<p><b>Chạy thử:</b> <code>n = 97</code>: thử <code>d = 2…9</code> đều có dư khác 0, đến <code>d = 10</code> thì <code>100 &gt; 97</code> dừng → số nguyên tố. <code>n = 91</code>: <code>d = 2…6</code> đều dư, <code>d = 7</code> thì <code>91 % 7 = 0</code> → hợp số. Độ phức tạp <b>O(√n)</b>: với <code>10<sup>12</sup></code> chỉ cỡ <code>10<sup>6</sup></code> phép.</p>
+
+<h3>Phân tích ra thừa số nguyên tố</h3>
+<p>Cũng dùng thử chia đến <code>√n</code>, nhưng khi tìm được ước <code>d</code> thì <b>chia hết <code>n</code> cho <code>d</code> càng nhiều lần càng tốt</b> và đếm số mũ. Sau vòng lặp, nếu còn <code>n &gt; 1</code> thì phần còn lại là <b>một số nguyên tố</b> (lớn hơn <code>√</code> phần đã xét).</p>
+<pre><code><span class="k">for</span> (<span class="k">long long</span> d = 2; d * d &lt;= n; d++) {
+    <span class="k">int</span> e = 0;
+    <span class="k">while</span> (n % d == 0) { n /= d; e++; }
+    <span class="k">if</span> (e &gt; 0) cout &lt;&lt; d &lt;&lt; "^" &lt;&lt; e &lt;&lt; "\n";
+}
+<span class="k">if</span> (n &gt; 1) cout &lt;&lt; n &lt;&lt; "^1\n";</code></pre>
+<p><b>Chạy thử</b> <code>n = 360</code>: <code>d = 2</code>: chia ba lần (360 → 180 → 90 → 45) → <code>2^3</code>. <code>d = 3</code>: chia hai lần (45 → 15 → 5) → <code>3^2</code>. <code>d = 4</code>: <code>16 &gt; 5</code> dừng. Còn <code>n = 5 &gt; 1</code> → <code>5^1</code>. Vậy <code>360 = 2³ × 3² × 5</code>.</p>
+<p><b>Vì sao <code>d</code> luôn là số nguyên tố?</b> Khi tới <code>d</code>, mọi thừa số nhỏ hơn <code>d</code> đã được chia hết, nên <code>d</code> mà là hợp số thì không thể còn là ước. Nhờ đó không cần kiểm tra <code>d</code> có nguyên tố hay không.</p>
+<div class="box">💡 <b>Liên hệ với trang trước:</b> nếu <code>n = p₁^e₁ × p₂^e₂ × …</code> thì số ước là <code>(e₁+1)(e₂+1)…</code>. Với <code>360</code>: <code>(3+1)(2+1)(1+1) = 24</code> ước.</div>
+<div class="box w">❓ <b>Câu hỏi:</b> nếu đề đổi thành "liệt kê <b>tất cả</b> số nguyên tố không vượt quá <code>10<sup>7</sup></code>" thì sao? Gọi <code>laNguyenTo</code> cho từng số tốn bao nhiêu phép?</div>
+</section>
+
+<section id="b2">
+<h2>2. Bậc 2: liệt kê mọi số nguyên tố, sàng Eratosthenes</h2>
+<div class="box"><b>Đề bài.</b> Cho <code>N ≤ 10<sup>7</sup></code>. Liệt kê (hoặc đếm) tất cả số nguyên tố trong <code>[1, N]</code>.<br><i>Ví dụ:</i> <code>N = 30</code> → <code>2 3 5 7 11 13 17 19 23 29</code> (10 số)</div>
+<p><b>Cách ngây thơ:</b> gọi <code>laNguyenTo</code> cho từng số: khoảng <code>N × √N = 10<sup>7</sup> × 3162 ≈ 3 × 10<sup>10</sup></code> phép tính: quá chậm. Vấn đề là mỗi số bị kiểm tra <b>độc lập</b>, trong khi giữa các số có liên hệ: <b>bội của số nguyên tố thì không phải số nguyên tố</b>.</p>
+<h3>Ý tưởng: thay vì kiểm tra, hãy gạch bỏ</h3>
+<p>Đây chính là cách nhìn "các bội của <code>d</code>" ở bài 4 của trang trước. <b>Sàng Eratosthenes:</b></p>
+<ol>
+<li>Viết các số từ <code>2</code> đến <code>N</code>, coi tất cả là "có thể nguyên tố".</li>
+<li>Lấy số <code>p</code> nhỏ nhất chưa bị gạch: nó là số nguyên tố. <b>Gạch mọi bội của <code>p</code></b> (bắt đầu từ <code>p × p</code>).</li>
+<li>Lặp lại với số chưa bị gạch tiếp theo, cho đến khi <code>p × p &gt; N</code>.</li>
+<li>Các số còn lại chưa bị gạch là số nguyên tố.</li>
+</ol>
+<p>Với <code>N = 30</code>:</p>
+<div class="tbl"><table>
+<tr><th>p</th><th>Gạch (số mới bị gạch)</th></tr>
+<tr><td>2</td><td class="l">4, 6, 8, 10, …, 30 (mọi số chẵn từ 4)</td></tr>
+<tr><td>3</td><td class="l">9, 15, 21, 27 (12, 18, 24, 30 đã bị gạch)</td></tr>
+<tr><td>5</td><td class="l">25 (30 đã bị gạch)</td></tr>
+<tr><td>7</td><td class="l"><code>7 × 7 = 49 &gt; 30</code>: dừng</td></tr>
+</table></div>
+<div class="tbl"><table>
+<tr><td>1</td><td class="i">2</td><td class="i">3</td><td class="o">4</td><td class="i">5</td></tr>
+<tr><td class="o">6</td><td class="i">7</td><td class="o">8</td><td class="o">9</td><td class="o">10</td></tr>
+<tr><td class="i">11</td><td class="o">12</td><td class="i">13</td><td class="o">14</td><td class="o">15</td></tr>
+<tr><td class="o">16</td><td class="i">17</td><td class="o">18</td><td class="i">19</td><td class="o">20</td></tr>
+<tr><td class="o">21</td><td class="o">22</td><td class="i">23</td><td class="o">24</td><td class="o">25</td></tr>
+<tr><td class="o">26</td><td class="o">27</td><td class="o">28</td><td class="i">29</td><td class="o">30</td></tr>
+</table></div>
+<p>Ô xanh là số nguyên tố, ô đỏ là số bị gạch: <code>2 3 5 7 11 13 17 19 23 29</code>, tổng cộng 10 số ✔.</p>
+<h3>Hai điểm tinh tế</h3>
+<ul>
+<li><b>Vì sao bắt đầu gạch từ <code>p × p</code>?</b> Bội của <code>p</code> nhỏ hơn <code>p²</code> có dạng <code>p × k</code> với <code>k &lt; p</code>, nên có ước nguyên tố nhỏ hơn <code>p</code> và đã bị gạch từ trước.</li>
+<li><b>Vì sao dừng khi <code>p × p &gt; N</code>?</b> Mọi hợp số <code>≤ N</code> có ước nguyên tố không vượt quá <code>√N</code> (ước đi theo cặp, như ở bậc 1), nên đã bị gạch bởi một <code>p ≤ √N</code>.</li>
+</ul>
+<pre><code>vector&lt;<span class="k">char</span>&gt; laNT(N + 1, 1);
+laNT[0] = laNT[1] = 0;
+<span class="k">for</span> (<span class="k">long long</span> i = 2; i * i &lt;= N; i++)
+    <span class="k">if</span> (laNT[i])
+        <span class="k">for</span> (<span class="k">long long</span> j = i * i; j &lt;= N; j += i)
+            laNT[j] = 0;
+<span class="k">int</span> dem = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 2; i &lt;= N; i++) <span class="k">if</span> (laNT[i]) dem++;</code></pre>
+<p><b>Độ phức tạp:</b> với mỗi số nguyên tố <code>p</code> ta gạch khoảng <code>N/p</code> số, tổng gần <code>N × (1/2 + 1/3 + 1/5 + …)</code>, cỡ <b>O(N log log N)</b>, gần như tuyến tính. Với <code>N = 10<sup>7</sup></code> chỉ cỡ vài chục triệu phép, so với <code>3 × 10<sup>10</sup></code> của cách thử chia. Đổi lại, sàng cần <code>N + 1</code> ô nhớ.</p>
+</section>
+
+<section id="b3">
+<h2>3. Bậc 3: nhiều truy vấn, sàng kết hợp mảng cộng dồn</h2>
+<div class="box"><b>Đề bài.</b> Cho <code>q ≤ 10<sup>5</sup></code> truy vấn <code>(l, r)</code> với <code>1 ≤ l ≤ r ≤ 10<sup>7</sup></code>. Mỗi truy vấn, in số số nguyên tố trong <code>[l, r]</code>.<br><i>Ví dụ:</i> <code>(10, 30)</code> → <code>6</code> (11, 13, 17, 19, 23, 29)</div>
+<p>Sàng cho ta biết số nào nguyên tố, nhưng đếm trong từng đoạn vẫn phải duyệt. Đây đúng là bài toán của chuyên đề <b>Mảng cộng dồn</b>: đặt <code>pre[i]</code> là số số nguyên tố trong <code>[1, i]</code> thì đáp án mỗi truy vấn là <code>pre[r] − pre[l−1]</code>.</p>
+<pre><code><span class="c">// sau khi đã sàng xong laNT[]</span>
+vector&lt;<span class="k">int</span>&gt; pre(N + 1, 0);
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt;= N; i++) pre[i] = pre[i - 1] + laNT[i];
+<span class="k">while</span> (q--) {
+    <span class="k">int</span> l, r; cin &gt;&gt; l &gt;&gt; r;
+    cout &lt;&lt; pre[r] - pre[l - 1] &lt;&lt; "\n";
+}</code></pre>
+<p><b>Chạy thử</b> <code>(10, 30)</code>: <code>pre[30] = 10</code> (đã đếm ở bậc 2), <code>pre[9] = 4</code> (2, 3, 5, 7), hiệu <code>6</code> ✔. Tổng thời gian: sàng <code>O(N log log N)</code>, dựng <code>pre</code> <code>O(N)</code>, mỗi truy vấn <code>O(1)</code>. <b>Sàng một lần, dùng cho mọi truy vấn.</b></p>
+</section>
+
+<section id="b4">
+<h2>4. Bậc 4: phân tích thừa số nhiều số, sàng ước nhỏ nhất</h2>
+<div class="box"><b>Đề bài.</b> Cho <code>T ≤ 10<sup>6</sup></code> số <code>n</code>, mỗi số <code>n ≤ 10<sup>7</sup></code>. Phân tích thừa số nguyên tố của từng số.<br><i>Ví dụ:</i> <code>360</code> → <code>2 2 2 3 3 5</code></div>
+<p>Thử chia mỗi số tốn <code>√n ≈ 3000</code> phép, với <code>10<sup>6</sup></code> số là <code>3 × 10<sup>9</sup></code>: quá chậm. Ý tưởng: khi sàng, <b>ghi lại cho mỗi số <code>j</code> ước nguyên tố nhỏ nhất của nó</b> (<code>spf[j]</code>, smallest prime factor). Khi đó phân tích <code>n</code> chỉ là: lấy <code>p = spf[n]</code>, in <code>p</code>, chia <code>n</code> cho <code>p</code>, lặp lại đến khi <code>n = 1</code>.</p>
+<pre><code>vector&lt;<span class="k">int</span>&gt; spf(N + 1);
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt;= N; i++) spf[i] = i;          <span class="c">// ban đầu: coi như nguyên tố</span>
+<span class="k">for</span> (<span class="k">long long</span> i = 2; i * i &lt;= N; i++)
+    <span class="k">if</span> (spf[i] == i)                                <span class="c">// i là nguyên tố</span>
+        <span class="k">for</span> (<span class="k">long long</span> j = i * i; j &lt;= N; j += i)
+            <span class="k">if</span> (spf[j] == j) spf[j] = i;            <span class="c">// chỉ ghi lần đầu (ước nhỏ nhất)</span>
+
+<span class="c">// phân tích n</span>
+<span class="k">while</span> (n &gt; 1) { <span class="k">int</span> p = spf[n]; cout &lt;&lt; p &lt;&lt; " "; n /= p; }</code></pre>
+<p><b>Chạy thử</b> <code>n = 360</code>: <code>spf[360] = 2</code> → in 2, <code>n = 180</code>; → 2, <code>n = 90</code>; → 2, <code>n = 45</code>; <code>spf[45] = 3</code> → 3, <code>n = 15</code>; → 3, <code>n = 5</code>; <code>spf[5] = 5</code> → 5, <code>n = 1</code>. Kết quả <code>2 2 2 3 3 5</code> ✔. Mỗi số chỉ mất <b>O(log n)</b> bước (mỗi lần chia ít nhất một nửa). Đổi lại, mảng <code>spf</code> kiểu <code>int</code> với <code>N = 10<sup>7</sup></code> tốn khoảng 40 MB.</p>
+</section>
+
+<section id="chon">
+<h2>5. Gặp đề thì chọn phương pháp nào?</h2>
+<div class="tbl"><table>
+<tr><th>Tình huống</th><th>Phương pháp</th><th>Chi phí</th></tr>
+<tr><td class="l">Một (hoặc vài) số, lớn đến <code>10<sup>12</sup></code></td><td class="l">Thử chia đến <code>√n</code></td><td>O(√n) mỗi số</td></tr>
+<tr><td class="l">Liệt kê hoặc đếm số nguyên tố trong <code>[1, N]</code>, <code>N ≤ 10<sup>7</sup></code></td><td class="l">Sàng Eratosthenes</td><td>O(N log log N)</td></tr>
+<tr><td class="l">Nhiều truy vấn đếm số nguyên tố trong đoạn</td><td class="l">Sàng + mảng cộng dồn</td><td>O(N log log N + q)</td></tr>
+<tr><td class="l">Phân tích thừa số nhiều số nhỏ</td><td class="l">Sàng ước nhỏ nhất (<code>spf</code>)</td><td>O(N log log N + T log N)</td></tr>
+<tr><td class="l">Khoảng <code>[L, R]</code> với <code>R</code> đến <code>10<sup>12</sup></code> nhưng <code>R − L ≤ 10<sup>6</sup></code></td><td class="l">Sàng đoạn (bài 6)</td><td>O(√R log log R + (R−L) log log R)</td></tr>
+</table></div>
+<div class="box"><b>Hai câu hỏi để chọn:</b> (1) <b>Bao nhiêu số</b> cần xử lý: một vài số (thử chia) hay rất nhiều số trong một miền nhỏ (sàng)? (2) <b>Lớn cỡ nào</b>: sàng cần bộ nhớ theo miền giá trị nên không dùng được cho một số <code>10<sup>12</sup></code>, còn thử chia thì không quan tâm đến "miền" mà chỉ phụ thuộc <code>√n</code>.</div>
+<p>Hai cách không cạnh tranh nhau mà <b>bổ sung nhau</b>: thử chia mạnh khi ít số nhưng lớn, sàng mạnh khi nhiều số nhưng nhỏ. Bài 6 dùng cả hai cùng lúc.</p>
+</section>
+
+<section id="bai-tap">
+<h2>6. Bài tập nâng dần</h2>
+<p>Với mỗi bài hãy tự hỏi: <i>"có bao nhiêu số cần xử lý, và chúng lớn cỡ nào? Cần sàng hay thử chia?"</i></p>
+
+<div class="bt"><h3>Bài 1. Đếm số nguyên tố không vượt quá N <span class="lv">(cơ bản)</span></h3>
+<p>Cho <code>N ≤ 10<sup>7</sup></code>. In số số nguyên tố trong <code>[1, N]</code>.<br><i>Ví dụ:</i> <code>N = 30</code> → <code>10</code>; <code>N = 100</code> → <code>25</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> một số lượng lớn các số trong miền nhỏ, nên dùng sàng (mục 2), rồi đếm các ô còn lại.</p>
+<pre><code>vector&lt;<span class="k">char</span>&gt; laNT(N + 1, 1);
+laNT[0] = laNT[1] = 0;
+<span class="k">for</span> (<span class="k">long long</span> i = 2; i * i &lt;= N; i++)
+    <span class="k">if</span> (laNT[i])
+        <span class="k">for</span> (<span class="k">long long</span> j = i * i; j &lt;= N; j += i) laNT[j] = 0;
+<span class="k">int</span> dem = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 2; i &lt;= N; i++) dem += laNT[i];
+cout &lt;&lt; dem;</code></pre>
+<p><i>Kiểm tra:</i> <code>N = 30</code> ra 10 (bảng ở mục 2), <code>N = 100</code> ra 25 ✔. Với <code>N = 10<sup>7</sup></code> kết quả là <code>664579</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 2. Phân tích thành tích các thừa số nguyên tố <span class="lv">(dễ)</span></h3>
+<p>Cho <code>n</code> (<code>2 ≤ n ≤ 10<sup>12</sup></code>). In phân tích ra thừa số nguyên tố dạng <code>p1^e1 * p2^e2 * ...</code>, số mũ bằng 1 thì không in <code>^1</code>.<br><i>Ví dụ:</i> <code>360</code> → <code>2^3 * 3^2 * 5</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> chỉ có một số lớn nên dùng thử chia (mục 1). Với mỗi thừa số tìm được, ghi một đoạn chữ ra danh sách, rồi nối bằng <code>" * "</code>. Đừng quên phần còn lại <code>n &gt; 1</code> là một số nguyên tố với số mũ 1.</p>
+<pre><code>vector&lt;string&gt; parts;
+<span class="k">for</span> (<span class="k">long long</span> d = 2; d * d &lt;= n; d++) {
+    <span class="k">int</span> e = 0;
+    <span class="k">while</span> (n % d == 0) { n /= d; e++; }
+    <span class="k">if</span> (e == 1) parts.push_back(to_string(d));
+    <span class="k">else if</span> (e &gt; 1) parts.push_back(to_string(d) + "^" + to_string(e));
+}
+<span class="k">if</span> (n &gt; 1) parts.push_back(to_string(n));
+<span class="k">for</span> (<span class="k">size_t</span> i = 0; i &lt; parts.size(); i++) {
+    <span class="k">if</span> (i) cout &lt;&lt; " * ";
+    cout &lt;&lt; parts[i];
+}</code></pre>
+<p><i>Kiểm tra</i> <code>n = 360</code>: <code>2^3</code>, <code>3^2</code>, rồi phần còn lại <code>5</code> → <code>2^3 * 3^2 * 5</code> ✔</p></div></details></div>
+
+<div class="bt"><h3>Bài 3. Cặp số nguyên tố sinh đôi <span class="lv">(dễ)</span></h3>
+<p>Hai số nguyên tố <code>p</code> và <code>p + 2</code> gọi là cặp <b>sinh đôi</b>. Cho <code>N ≤ 10<sup>7</sup></code>, đếm số cặp sinh đôi <code>(p, p+2)</code> với <code>p + 2 ≤ N</code>.<br><i>Ví dụ:</i> <code>N = 30</code> → <code>4</code> (các cặp 3-5, 5-7, 11-13, 17-19)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> sàng một lần, rồi duyệt <code>p</code> và kiểm tra hai ô <code>laNT[p]</code>, <code>laNT[p + 2]</code> cùng bằng 1.</p>
+<pre><code><span class="k">int</span> dem = 0;
+<span class="k">for</span> (<span class="k">int</span> p = 2; p + 2 &lt;= N; p++)
+    <span class="k">if</span> (laNT[p] &amp;&amp; laNT[p + 2]) dem++;
+cout &lt;&lt; dem;</code></pre>
+<p><i>Kiểm tra</i> <code>N = 30</code>: các <code>p</code> thỏa là 3, 5, 11, 17 → 4 ✔ (cặp 29-31 vượt quá 30).</p></div></details></div>
+
+<div class="bt"><h3>Bài 4. Số ước của nhiều số <span class="lv">(trung bình)</span></h3>
+<p>Cho <code>T ≤ 10<sup>6</sup></code> truy vấn, mỗi truy vấn là một số <code>n ≤ 10<sup>7</sup></code>. In số ước của <code>n</code>.<br><i>Ví dụ:</i> <code>360</code> → <code>24</code>; <code>97</code> → <code>2</code>; <code>1</code> → <code>1</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> kết hợp hai trang: số ước là tích các <code>(mũ + 1)</code> của phân tích thừa số (trang Chia hết, ước và bội), và có rất nhiều số nhỏ nên dùng sàng <code>spf</code> để phân tích nhanh. Sàng một lần, rồi mỗi truy vấn duyệt các thừa số bằng <code>spf</code>, gom số mũ của cùng một số nguyên tố.</p>
+<pre><code><span class="c">// spf[] đã sàng xong (mục 4)</span>
+<span class="k">long long</span> t = 1;
+<span class="k">while</span> (n &gt; 1) {
+    <span class="k">int</span> p = spf[n], e = 0;
+    <span class="k">while</span> (n % p == 0) { n /= p; e++; }
+    t *= e + 1;
+}
+cout &lt;&lt; t &lt;&lt; "\n";</code></pre>
+<p><i>Kiểm tra</i> <code>n = 360</code>: <code>2</code> mũ 3, <code>3</code> mũ 2, <code>5</code> mũ 1 → <code>4 × 3 × 2 = 24</code> ✔; <code>n = 97</code> nguyên tố → <code>(1+1) = 2</code> ✔; <code>n = 1</code> không vào vòng lặp, <code>t = 1</code> ✔. Mỗi truy vấn <code>O(log n)</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 5. Giả thuyết Goldbach <span class="lv">(khá)</span></h3>
+<p>Cho <code>T</code> số chẵn <code>n</code> (<code>4 ≤ n ≤ 10<sup>6</sup></code>). Với mỗi <code>n</code>, tìm hai số nguyên tố <code>p ≤ q</code> có <code>p + q = n</code> với <code>p</code> <b>nhỏ nhất</b>, và in <code>p q</code>. (Đề đảm bảo luôn có cặp như vậy.)<br><i>Ví dụ:</i> <code>10</code> → <code>3 7</code>; <code>28</code> → <code>5 23</code>; <code>4</code> → <code>2 2</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> nhiều truy vấn trong miền nhỏ (≤ 10<sup>6</sup>): sàng <b>một lần</b> đến <code>10<sup>6</sup></code>. Với mỗi <code>n</code>, thử <code>p</code> từ 2 đến <code>n/2</code>, gặp <code>p</code> nguyên tố mà <code>n − p</code> cũng nguyên tố thì dừng; vì duyệt <code>p</code> tăng dần nên <code>p</code> tìm được là nhỏ nhất. Tra cứu <code>laNT[n − p]</code> mất <code>O(1)</code>.</p>
+<pre><code><span class="c">// laNT[] đã sàng đến 10^6</span>
+<span class="k">for</span> (<span class="k">int</span> p = 2; p &lt;= n / 2; p++)
+    <span class="k">if</span> (laNT[p] &amp;&amp; laNT[n - p]) {
+        cout &lt;&lt; p &lt;&lt; " " &lt;&lt; n - p &lt;&lt; "\n";
+        <span class="k">break</span>;
+    }</code></pre>
+<p><i>Kiểm tra:</i> <code>n = 28</code>: <code>p = 2</code> (26 không nguyên tố), <code>p = 3</code> (25 không), <code>p = 5</code> (23 nguyên tố) → <code>5 23</code> ✔. Trên thực tế <code>p</code> nhỏ nhất thường rất nhỏ nên vòng lặp kết thúc rất sớm.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Sàng đoạn <span class="lv">(khó)</span></h3>
+<p>Cho <code>L ≤ R ≤ 10<sup>12</sup></code> với <code>R − L ≤ 10<sup>6</sup></code>. Đếm số số nguyên tố trong <code>[L, R]</code>.<br><i>Ví dụ:</i> <code>L = 10</code>, <code>R = 30</code> → <code>6</code>; <code>L = 1</code>, <code>R = 10</code> → <code>4</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> đây là bài cần <b>cả hai phương pháp</b>. Sàng cả <code>[1, R]</code> thì cần <code>10<sup>12</sup></code> ô nhớ: không thể. Nhưng đoạn cần xét chỉ dài tối đa <code>10<sup>6</sup></code>. Mọi hợp số trong <code>[L, R]</code> có ước nguyên tố không quá <code>√R ≤ 10<sup>6</sup></code>. Vậy:</p>
+<ol>
+<li><b>Sàng thường</b> đến <code>√R</code> để lấy các số nguyên tố nhỏ <code>p</code>.</li>
+<li>Lập bảng <code>seg</code> gồm <code>R − L + 1</code> ô cho đoạn <code>[L, R]</code> (ô <code>x − L</code> ứng với số <code>x</code>).</li>
+<li>Với mỗi số nguyên tố nhỏ <code>p</code>, <b>gạch các bội của <code>p</code> trong <code>[L, R]</code></b>, bắt đầu từ <code>max(p × p, ⌈L / p⌉ × p)</code> (bội đầu tiên của <code>p</code> không nhỏ hơn <code>L</code>; không gạch chính <code>p</code> khi <code>p</code> nằm trong đoạn, nên bắt đầu từ <code>p²</code>).</li>
+<li>Đếm các ô còn lại, <b>bỏ các số nhỏ hơn 2</b> (vì <code>1</code> không nguyên tố).</li>
+</ol>
+<pre><code><span class="k">long long</span> lim = sqrtl((<span class="k">long double</span>)R);
+<span class="k">while</span> (lim * lim &gt; R) lim--;
+<span class="k">while</span> ((lim + 1) * (lim + 1) &lt;= R) lim++;
+
+vector&lt;<span class="k">char</span>&gt; nho(lim + 1, 1);                 <span class="c">// sàng thường đến căn R</span>
+nho[0] = 0; <span class="k">if</span> (lim &gt;= 1) nho[1] = 0;
+<span class="k">for</span> (<span class="k">long long</span> i = 2; i * i &lt;= lim; i++)
+    <span class="k">if</span> (nho[i])
+        <span class="k">for</span> (<span class="k">long long</span> j = i * i; j &lt;= lim; j += i) nho[j] = 0;
+
+vector&lt;<span class="k">char</span>&gt; seg(R - L + 1, 1);                <span class="c">// sàng đoạn</span>
+<span class="k">for</span> (<span class="k">long long</span> p = 2; p &lt;= lim; p++)
+    <span class="k">if</span> (nho[p]) {
+        <span class="k">long long</span> bat = max(p * p, ((L + p - 1) / p) * p);
+        <span class="k">for</span> (<span class="k">long long</span> j = bat; j &lt;= R; j += p) seg[j - L] = 0;
+    }
+<span class="k">long long</span> dem = 0;
+<span class="k">for</span> (<span class="k">long long</span> x = L; x &lt;= R; x++)
+    <span class="k">if</span> (x &gt;= 2 &amp;&amp; seg[x - L]) dem++;
+cout &lt;&lt; dem;</code></pre>
+<p><i>Chạy thử</i> <code>L = 10</code>, <code>R = 30</code>: <code>lim = 5</code>, các số nguyên tố nhỏ là 2, 3, 5. Gạch bội của 2 (bắt đầu từ 10), của 3 (bắt đầu từ 12), của 5 (bắt đầu từ 25). Còn lại <code>11 13 17 19 23 29</code> → <b>6</b> ✔. Với <code>L = 1</code>, <code>R = 10</code>: còn lại <code>2 3 5 7</code> (loại số 1) → <b>4</b> ✔. Bộ nhớ chỉ khoảng <code>2 × 10<sup>6</sup></code> ô thay vì <code>10<sup>12</sup></code>.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>7. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Coi 0, 1 là số nguyên tố:</b> <code>0</code> và <code>1</code> không phải số nguyên tố. Trong hàm thử chia hãy xử lý <code>n &lt; 2</code> trước; trong sàng nhớ gán <code>laNT[0] = laNT[1] = 0</code>.</div>
+<div class="box w"><b>Gọi <code>laNguyenTo</code> lặp lại cho nhiều số:</b> khi cần xử lý nhiều số nhỏ, hãy sàng một lần rồi tra cứu <code>O(1)</code>, đừng chạy thử chia từng số (bậc 2).</div>
+<div class="box w"><b>Chạy lại sàng trong mỗi truy vấn:</b> sàng chỉ cần một lần ở đầu chương trình.</div>
+<div class="box w"><b>Sàng bắt đầu gạch từ <code>2·i</code> thay vì <code>i·i</code>:</b> vẫn đúng nhưng chậm hơn; nếu viết <code>j = i * i</code> với <code>i</code> kiểu <code>int</code> lớn thì có thể tràn, hãy dùng <code>long long</code>.</div>
+<div class="box w"><b>Bộ nhớ:</b> dùng <code>vector&lt;char&gt;</code> (hoặc <code>bool</code>) cho sàng thường; mảng <code>spf</code> kiểu <code>int</code> với <code>N = 10<sup>7</sup></code> tốn khoảng 40 MB, hãy kiểm tra giới hạn bộ nhớ của bài.</div>
+<div class="box w"><b>Dùng sàng cho số quá lớn:</b> sàng cần ô nhớ theo miền giá trị nên không dùng cho một số đến <code>10<sup>12</sup></code> (dùng thử chia), trừ trường hợp đoạn hẹp (sàng đoạn, bài 6).</div>
+<div class="box"><b>Tóm tắt:</b> số nguyên tố chỉ có hai ước. Một số lớn: <b>thử chia đến <code>√n</code></b> (<code>O(√n)</code>), cũng dùng để phân tích thừa số. Nhiều số trong miền nhỏ: <b>sàng Eratosthenes</b> gạch bội của các số nguyên tố từ <code>p²</code> (<code>O(N log log N)</code>); kết hợp <b>mảng cộng dồn</b> cho truy vấn đoạn, và <b>sàng ước nhỏ nhất</b> cho phân tích nhanh. Khi cần cả hai (đoạn hẹp ở tọa độ rất lớn) thì sàng đoạn.<br><b>Chủ đề tiếp theo:</b> UCLN, BCNN và thuật toán Euclid.</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

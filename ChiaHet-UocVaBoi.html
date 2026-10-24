@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chia hết, ước và bội trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;--out:#ffd2d2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+td.o{background:var(--out)}
+td.l{text-align:left}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>➗ Chia hết, ước và bội</h1>
+<p>Đếm và liệt kê ước của một số lớn chỉ với √n phép thử: nền tảng của mạch Số học</p>
+</header>
+<nav>
+<a href="#bt">1. Bài toán mở đầu</a><a href="#y">2. Ý tưởng</a><a href="#code">3. Cài đặt</a><a href="#vd">4. Chạy thử</a><a href="#bai-tap">5. Bài tập</a><a href="#luu">6. Lưu ý</a>
+</nav>
+<main>
+
+<section id="bt">
+<h2>1. Bài toán mở đầu: đếm số ước</h2>
+<div class="box">📌 <b>Nhắc lại.</b> Số <code>a</code> <b>chia hết</b> cho <code>b</code> khi phép chia có dư bằng 0, tức <code>a % b == 0</code>. Khi đó <code>b</code> là <b>ước</b> của <code>a</code>, còn <code>a</code> là <b>bội</b> của <code>b</code>. Ví dụ <code>36 % 4 == 0</code> nên 4 là ước của 36 và 36 là bội của 4. Số nào cũng có hai ước hiển nhiên là <code>1</code> và chính nó.</div>
+<div class="box"><b>Đề bài.</b> Cho số nguyên dương <code>n</code>. Hãy đếm số <b>ước nguyên dương</b> của <code>n</code>.<br><b>Giới hạn:</b> <code>n ≤ 10<sup>12</sup></code>.</div>
+<p><b>Ví dụ:</b> <code>n = 36</code> → <code>9</code> (các ước: <code>1, 2, 3, 4, 6, 9, 12, 18, 36</code>).</p>
+
+<h3>Cách 1: thử mọi số từ 1 đến n</h3>
+<pre><code><span class="k">long long</span> cnt = 0;
+<span class="k">for</span> (<span class="k">long long</span> d = 1; d &lt;= n; d++)
+    <span class="k">if</span> (n % d == 0) cnt++;</code></pre>
+<p>Đúng, nhưng với <code>n = 10<sup>12</sup></code> phải làm <code>10<sup>12</sup></code> phép chia. Máy làm khoảng <code>10<sup>8</sup></code> phép mỗi giây, nên mất cỡ <code>10<sup>4</sup></code> giây, gần ba tiếng: không thể chấp nhận.</p>
+<div class="box w">❓ <b>Hãy nghĩ:</b> nhìn các ước của 36 là <code>1, 2, 3, 4, 6, 9, 12, 18, 36</code>. Thử ghép chúng thành những cặp có <b>tích bằng 36</b>. Bạn nhận thấy điều gì về hai số trong mỗi cặp?</div>
+</section>
+
+<section id="y">
+<h2>2. Ý tưởng: ước đi theo cặp</h2>
+<p>Nếu <code>d</code> là ước của <code>n</code> thì <code>n / d</code> cũng là ước của <code>n</code> (vì <code>d × (n/d) = n</code>). Vậy các ước <b>luôn đi thành từng cặp</b> <code>(d, n/d)</code> có tích bằng <code>n</code>. Với <code>n = 36</code>:</p>
+<div class="tbl"><table>
+<tr><th>Cặp</th><th>Ước nhỏ <code>d</code></th><th>Ước lớn <code>n / d</code></th></tr>
+<tr><td>1</td><td class="i">1</td><td class="h">36</td></tr>
+<tr><td>2</td><td class="i">2</td><td class="h">18</td></tr>
+<tr><td>3</td><td class="i">3</td><td class="h">12</td></tr>
+<tr><td>4</td><td class="i">4</td><td class="h">9</td></tr>
+<tr><td>5</td><td class="i">6</td><td class="i">6 (trùng nhau)</td></tr>
+</table></div>
+<p>Trong mỗi cặp, một số <b>không vượt quá <code>√n</code></b> (cột xanh) và số kia <b>không nhỏ hơn <code>√n</code></b> (cột vàng). Vì sao? Nếu cả hai đều lớn hơn <code>√n</code> thì tích của chúng lớn hơn <code>√n × √n = n</code>, vô lý.</p>
+<div class="box"><b>Hệ quả:</b> mọi ước lớn hơn <code>√n</code> đều là "người bạn cặp" của một ước nhỏ hơn hoặc bằng <code>√n</code>. Chỉ cần duyệt <code>d</code> từ <code>1</code> đến <code>√n</code>; mỗi lần <code>d</code> là ước, ta tìm được <b>hai</b> ước: <code>d</code> và <code>n / d</code>.</div>
+<p>Có một trường hợp đặc biệt: khi <code>d = n / d</code> (tức <code>n = d²</code>, <code>n</code> là số chính phương, như cặp <code>6 × 6</code> ở trên) thì hai ước trùng nhau, chỉ được đếm <b>một lần</b>.</p>
+<p><b>Thời gian:</b> chỉ <code>√n</code> lần thử, tức <b>O(√n)</b>. Với <code>n = 10<sup>12</sup></code> là <code>10<sup>6</sup></code> phép, nhanh hơn cách 1 một triệu lần.</p>
+<div class="box">💡 <b>Quan sát thú vị:</b> các ước thường ghép thành cặp, nên số ước thường là số <b>chẵn</b>. Số ước chỉ <b>lẻ</b> khi có cặp suy biến <code>d = n/d</code>, tức khi <code>n</code> là số chính phương. Bài tập 5 sẽ dùng ý này.</div>
+</section>
+
+<section id="code">
+<h2>3. Cài đặt</h2>
+<pre><code>#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">int</span> main() {
+    <span class="k">long long</span> n; cin &gt;&gt; n;
+    <span class="k">long long</span> cnt = 0;
+    <span class="k">for</span> (<span class="k">long long</span> d = 1; d * d &lt;= n; d++) {
+        <span class="k">if</span> (n % d == 0) {
+            cnt++;                          <span class="c">// ước d</span>
+            <span class="k">if</span> (d != n / d) cnt++;        <span class="c">// ước n/d (nếu khác d)</span>
+        }
+    }
+    cout &lt;&lt; cnt;
+}</code></pre>
+<p><b>Điều kiện dừng <code>d * d &lt;= n</code></b> thay cho <code>d &lt;= sqrt(n)</code>: dùng toàn số nguyên nên không bị sai số của số thực. Với <code>n ≤ 10<sup>12</sup></code>, <code>d</code> không quá khoảng <code>10<sup>6</sup></code> nên <code>d * d</code> không tràn <code>long long</code>.</p>
+<p><b>Độ phức tạp:</b> <code>O(√n)</code> thời gian, <code>O(1)</code> bộ nhớ.</p>
+</section>
+
+<section id="vd">
+<h2>4. Chạy thử với dữ liệu mẫu</h2>
+<p><code>n = 36</code>:</p>
+<div class="tbl"><table>
+<tr><th>d</th><th>d × d</th><th>36 % d</th><th>Ước tìm được</th><th>cnt</th></tr>
+<tr><td>1</td><td>1</td><td>0</td><td>1 và 36</td><td>2</td></tr>
+<tr><td>2</td><td>4</td><td>0</td><td>2 và 18</td><td>4</td></tr>
+<tr><td>3</td><td>9</td><td>0</td><td>3 và 12</td><td>6</td></tr>
+<tr><td>4</td><td>16</td><td>0</td><td>4 và 9</td><td>8</td></tr>
+<tr><td>5</td><td>25</td><td>1</td><td>không</td><td>8</td></tr>
+<tr><td>6</td><td>36</td><td>0</td><td>chỉ 6 (vì 6 = 36/6)</td><td class="i">9</td></tr>
+<tr><td>7</td><td>49 &gt; 36</td><td colspan="3">dừng</td></tr>
+</table></div>
+<p>Đáp án <code>9</code> ✔. Kiểm tra trường hợp nhỏ nhất: <code>n = 1</code> thì chỉ có <code>d = 1</code>, <code>1 = 1/1</code> nên đếm một lần, kết quả <code>1</code> ✔.</p>
+</section>
+
+<section id="bai-tap">
+<h2>5. Bài tập nâng dần</h2>
+<p>Với mỗi bài hãy tự hỏi: <i>"có tận dụng được việc ước đi thành cặp, và chỉ cần duyệt đến √n không?"</i></p>
+
+<div class="bt"><h3>Bài 1. Liệt kê các ước <span class="lv">(cơ bản)</span></h3>
+<p>Cho <code>n ≤ 10<sup>12</sup></code>. In tất cả các ước của <code>n</code> theo thứ tự <b>tăng dần</b>.<br><i>Ví dụ:</i> <code>36</code> → <code>1 2 3 4 6 9 12 18 36</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> duyệt <code>d</code> đến <code>√n</code>. Các ước nhỏ <code>d</code> tìm được theo thứ tự <b>tăng</b>; các ước lớn <code>n / d</code> tìm được theo thứ tự <b>giảm</b>. Gom hai nhóm vào hai vector, rồi in nhóm nhỏ, sau đó nhóm lớn <b>đảo ngược</b>. Nhớ bỏ ước lớn trùng với ước nhỏ khi <code>d = n/d</code>.</p>
+<pre><code>vector&lt;<span class="k">long long</span>&gt; nho, lon;
+<span class="k">for</span> (<span class="k">long long</span> d = 1; d * d &lt;= n; d++)
+    <span class="k">if</span> (n % d == 0) {
+        nho.push_back(d);
+        <span class="k">if</span> (d != n / d) lon.push_back(n / d);
+    }
+reverse(lon.begin(), lon.end());
+<span class="k">for</span> (<span class="k">long long</span> x : nho) cout &lt;&lt; x &lt;&lt; " ";
+<span class="k">for</span> (<span class="k">long long</span> x : lon) cout &lt;&lt; x &lt;&lt; " ";</code></pre>
+<p><i>Kiểm tra</i> <code>n = 36</code>: <code>nho = 1 2 3 4 6</code>, <code>lon = 36 18 12 9</code> sau khi đảo thành <code>9 12 18 36</code> → <code>1 2 3 4 6 9 12 18 36</code> ✔</p></div></details></div>
+
+<div class="bt"><h3>Bài 2. Số hoàn hảo <span class="lv">(dễ)</span></h3>
+<p>Một số là <b>hoàn hảo</b> nếu bằng tổng các ước <b>thực sự</b> của nó (các ước nhỏ hơn chính nó). Cho <code>n ≤ 10<sup>12</sup></code>, in <code>YES</code> nếu <code>n</code> hoàn hảo, ngược lại <code>NO</code>.<br><i>Ví dụ:</i> <code>28</code> → <code>YES</code> (1 + 2 + 4 + 7 + 14 = 28); <code>12</code> → <code>NO</code> (1 + 2 + 3 + 4 + 6 = 16)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> cộng tất cả ước (cả <code>d</code> và <code>n/d</code>, chú ý không cộng hai lần khi trùng), rồi <b>trừ đi chính <code>n</code></b> để chỉ còn ước thực sự. So sánh với <code>n</code>. Trường hợp <code>n = 1</code>: tổng ước thực sự là 0, khác 1, nên <code>NO</code>.</p>
+<pre><code><span class="k">long long</span> sum = 0;
+<span class="k">for</span> (<span class="k">long long</span> d = 1; d * d &lt;= n; d++)
+    <span class="k">if</span> (n % d == 0) {
+        sum += d;
+        <span class="k">if</span> (d != n / d) sum += n / d;
+    }
+sum -= n;                                  <span class="c">// bỏ chính n</span>
+cout &lt;&lt; (sum == n ? "YES" : "NO");</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 3. Đếm bội trong một đoạn <span class="lv">(dễ)</span></h3>
+<p>Cho ba số <code>l, r, k</code> (<code>1 ≤ l ≤ r ≤ 10<sup>18</sup></code>, <code>k ≥ 1</code>). Đếm có bao nhiêu số nguyên trong đoạn <code>[l, r]</code> chia hết cho <code>k</code>.<br><i>Ví dụ:</i> <code>l = 10</code>, <code>r = 50</code>, <code>k = 7</code> → <code>6</code> (14, 21, 28, 35, 42, 49)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> duyệt cả đoạn thì quá chậm (10<sup>18</sup>). Số bội của <code>k</code> trong <code>[1, x]</code> là <code>⌊x / k⌋</code> (phép chia nguyên của C++). Giống mảng cộng dồn: <b>đếm trong <code>[l, r]</code> = đếm trong <code>[1, r]</code> trừ đếm trong <code>[1, l−1]</code></b>.</p>
+<pre><code>cout &lt;&lt; r / k - (l - 1) / k;</code></pre>
+<p><i>Kiểm tra:</i> <code>50 / 7 = 7</code>, <code>9 / 7 = 1</code>, hiệu <code>6</code> ✔. Một dòng, thời gian <code>O(1)</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 4. Số ước của mọi số từ 1 đến N <span class="lv">(trung bình)</span></h3>
+<p>Cho <code>N ≤ 10<sup>6</sup></code>. Với mỗi <code>i</code> từ 1 đến <code>N</code>, in số ước của <code>i</code>.<br><i>Ví dụ:</i> <code>N = 10</code> → <code>1 2 2 3 2 4 2 4 3 4</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> chạy cách ở mục 3 cho từng <code>i</code> tốn khoảng <code>N√N = 10<sup>9</sup></code> phép tính. Đổi góc nhìn: thay vì hỏi "<code>i</code> có những ước nào", hãy hỏi "<b>các bội của <code>d</code> là những số nào</b>". Với mỗi <code>d</code>, đi qua các bội <code>d, 2d, 3d, …</code> và cộng thêm 1 vào số ước của mỗi bội.</p>
+<pre><code>vector&lt;<span class="k">int</span>&gt; cnt(N + 1, 0);
+<span class="k">for</span> (<span class="k">int</span> d = 1; d &lt;= N; d++)
+    <span class="k">for</span> (<span class="k">int</span> m = d; m &lt;= N; m += d)
+        cnt[m]++;
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt;= N; i++) cout &lt;&lt; cnt[i] &lt;&lt; " ";</code></pre>
+<p>Số phép tính là <code>N/1 + N/2 + N/3 + … + N/N ≈ N ln N</code>, với <code>N = 10<sup>6</sup></code> chỉ khoảng 1,4 triệu phép. Đây là ý tưởng của <b>sàng</b>, sẽ gặp lại ở chuyên đề sau.</p>
+<p><i>Kiểm tra</i> <code>N = 10</code>: <code>d=1</code> cộng cho cả 10 số; <code>d=2</code> cộng cho 2, 4, 6, 8, 10; … Kết quả <code>1 2 2 3 2 4 2 4 3 4</code> ✔</p></div></details></div>
+
+<div class="bt"><h3>Bài 5. Đếm số có số ước lẻ <span class="lv">(khá)</span></h3>
+<p>Cho <code>N ≤ 10<sup>18</sup></code>. Đếm có bao nhiêu số trong <code>[1, N]</code> có <b>số lượng ước là số lẻ</b>.<br><i>Ví dụ:</i> <code>N = 36</code> → <code>6</code>; <code>N = 10</code> → <code>3</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> dùng quan sát ở mục 2. Các ước ghép thành cặp <code>(d, n/d)</code> với <code>d ≠ n/d</code>, mỗi cặp đóng góp 2 ước, tức số chẵn. Số ước chỉ lẻ khi có thêm một "cặp suy biến" <code>d = n/d</code>, tức <code>n = d²</code>. Vậy <b>số có số ước lẻ chính là số chính phương</b>.</p>
+<p>Đáp án là số các số chính phương trong <code>[1, N]</code>: đó là <code>1², 2², …, k²</code> với <code>k² ≤ N</code>, tức <code>k = ⌊√N⌋</code>. Tính <code>⌊√N⌋</code> an toàn bằng số nguyên: lấy xấp xỉ rồi chỉnh.</p>
+<pre><code><span class="k">long long</span> r = sqrtl((<span class="k">long double</span>)N);
+<span class="k">while</span> (r * r &gt; N) r--;
+<span class="k">while</span> ((r + 1) * (r + 1) &lt;= N) r++;
+cout &lt;&lt; r;</code></pre>
+<p><i>Kiểm tra:</i> <code>N = 36</code> → <code>r = 6</code> (1, 4, 9, 16, 25, 36); <code>N = 10</code> → <code>r = 3</code> (1, 4, 9) ✔. Với <code>N = 10<sup>18</sup></code>, <code>r ≈ 10<sup>9</sup></code> nên <code>(r + 1)²</code> vẫn nằm trong <code>long long</code>. Thời gian <code>O(1)</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Tổng số ước của mọi số từ 1 đến N <span class="lv">(khó)</span></h3>
+<p>Cho <code>N ≤ 10<sup>12</sup></code>. Tính tổng số ước của các số <code>1, 2, …, N</code>, tức <code>τ(1) + τ(2) + … + τ(N)</code> (với <code>τ(k)</code> là số ước của <code>k</code>).<br><i>Ví dụ:</i> <code>N = 6</code> → <code>14</code> (1 + 2 + 2 + 3 + 2 + 4)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> cách ở bài 4 cần <code>N</code> ô nhớ nên không dùng được với <code>10<sup>12</sup></code>. Hãy đếm theo <b>cặp</b>. Mỗi ước <code>a</code> của một số <code>k ≤ N</code> cho ra cặp <code>(a, b)</code> với <code>a × b = k</code>. Vậy tổng cần tính bằng <b>số cặp số nguyên dương <code>(a, b)</code> có <code>a × b ≤ N</code></b>. Với mỗi <code>a</code> cố định có <code>⌊N / a⌋</code> giá trị <code>b</code>, nên tổng bằng <code>Σ ⌊N / a⌋</code> với <code>a</code> từ 1 đến <code>N</code>: vẫn <code>N</code> số hạng.</p>
+<p><b>Dùng tính đối xứng:</b> đặt <code>s = ⌊√N⌋</code>. Mọi cặp thỏa <code>a × b ≤ N</code> có <code>a ≤ s</code> hoặc <code>b ≤ s</code> (nếu cả hai lớn hơn <code>s</code> thì tích lớn hơn <code>N</code>).</p>
+<ul>
+<li>Số cặp có <code>a ≤ s</code>: <code>Σ<sub>a=1..s</sub> ⌊N / a⌋</code>.</li>
+<li>Số cặp có <code>b ≤ s</code>: bằng đúng giá trị trên (đối xứng).</li>
+<li>Số cặp có <b>cả hai</b> <code>a ≤ s</code> và <code>b ≤ s</code>: <code>s²</code> (khi đó tích <code>≤ s² ≤ N</code> luôn thỏa). Các cặp này bị đếm hai lần.</li>
+</ul>
+<p>Theo bao hàm - loại trừ: <b>tổng = 2 × Σ<sub>a=1..s</sub> ⌊N / a⌋ − s²</b>. Chỉ <code>s ≈ 10<sup>6</sup></code> số hạng.</p>
+<pre><code><span class="k">long long</span> s = sqrtl((<span class="k">long double</span>)N);
+<span class="k">while</span> (s * s &gt; N) s--;
+<span class="k">while</span> ((s + 1) * (s + 1) &lt;= N) s++;
+<span class="k">long long</span> sum = 0;
+<span class="k">for</span> (<span class="k">long long</span> a = 1; a &lt;= s; a++) sum += N / a;
+cout &lt;&lt; 2 * sum - s * s;</code></pre>
+<p><i>Chạy thử</i> <code>N = 6</code>: <code>s = 2</code>, <code>Σ = 6/1 + 6/2 = 9</code>, kết quả <code>2 × 9 − 4 = 14</code> ✔. Độ phức tạp <code>O(√N)</code>. Kết quả có thể rất lớn (cỡ <code>N ln N</code>), cần <code>long long</code>.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>6. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Dùng <code>d &lt;= sqrt(n)</code>:</b> <code>sqrt</code> trả về số thực, có thể sai lệch với số lớn. Hãy dùng <code>d * d &lt;= n</code> hoặc tính căn nguyên bằng cách chỉnh như bài 5.</div>
+<div class="box w"><b>Quên <code>d != n / d</code>:</b> số chính phương sẽ bị đếm thừa một ước (hoặc cộng thừa một lần trong tổng ước).</div>
+<div class="box w"><b>Dùng <code>int</code> cho <code>n</code>, <code>d * d</code>:</b> với <code>n</code> lớn, <code>d * d</code> tràn <code>int</code>. Hãy dùng <code>long long</code> cho cả <code>n</code> và <code>d</code>.</div>
+<div class="box w"><b>Tràn khi <code>n</code> sát giới hạn <code>long long</code>:</b> nếu <code>n</code> có thể gần <code>9 × 10<sup>18</sup></code> thì <code>d * d</code> có thể tràn; khi đó dùng điều kiện <code>d &lt;= n / d</code>.</div>
+<div class="box w"><b>Quên trường hợp <code>n = 1</code> và thứ tự in:</b> các ước lớn <code>n / d</code> đi theo thứ tự giảm nên muốn in tăng dần phải đảo ngược (bài 1).</div>
+<div class="box"><b>Tóm tắt:</b> ước đi theo cặp <code>(d, n/d)</code>, một số không vượt quá <code>√n</code>, nên chỉ cần duyệt <code>d</code> đến <code>√n</code> trong <code>O(√n)</code>. Chú ý cặp suy biến <code>d = n/d</code> (số chính phương). Với <b>nhiều số cùng lúc</b>, đổi góc nhìn sang "các bội của <code>d</code>" (bài 4). Số có số ước lẻ là số chính phương (bài 5), và các tổng theo cặp có thể rút gọn nhờ đối xứng (bài 6).<br><b>Chủ đề tiếp theo:</b> Số nguyên tố: thử chia và sàng.</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

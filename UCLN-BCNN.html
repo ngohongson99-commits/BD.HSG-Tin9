@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UCLN, BCNN và thuật toán Euclid trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;--out:#ffd2d2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+td.o{background:var(--out)}
+td.l{text-align:left}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>🔗 UCLN, BCNN và thuật toán Euclid</h1>
+<p>Tìm ước chung lớn nhất của hai số đến 10^18 chỉ trong khoảng 85 phép chia</p>
+</header>
+<nav>
+<a href="#bt">1. Bài toán mở đầu</a><a href="#y">2. Ý tưởng Euclid</a><a href="#code">3. Cài đặt</a><a href="#vd">4. Chạy thử</a><a href="#bcnn">5. BCNN và dãy số</a><a href="#bai-tap">6. Bài tập</a><a href="#luu">7. Lưu ý</a>
+</nav>
+<main>
+
+<section id="bt">
+<h2>1. Bài toán mở đầu: ước chung lớn nhất</h2>
+<div class="box">📌 <b>Nhắc lại.</b> <b>Ước chung lớn nhất</b> (UCLN, tiếng Anh <i>GCD</i>) của <code>a</code> và <code>b</code> là số lớn nhất chia hết cho cả hai, ký hiệu <code>gcd(a, b)</code>. <b>Bội chung nhỏ nhất</b> (BCNN, <i>LCM</i>) là số dương nhỏ nhất chia hết cho cả hai. Ví dụ với <code>12</code> và <code>18</code>: ước chung là <code>1, 2, 3, 6</code> nên <code>gcd = 6</code>; bội chung là <code>36, 72, …</code> nên <code>lcm = 36</code>. Hai số có <code>gcd = 1</code> gọi là <b>nguyên tố cùng nhau</b>.</div>
+<div class="box"><b>Đề bài.</b> Cho hai số nguyên không âm <code>a, b</code> (<code>a, b ≤ 10<sup>18</sup></code>, không đồng thời bằng 0). Tính <code>gcd(a, b)</code>.<br><i>Ví dụ:</i> <code>a = 1071</code>, <code>b = 462</code> → <code>21</code></div>
+
+<h3>Cách 1: thử từ lớn xuống nhỏ</h3>
+<pre><code><span class="k">for</span> (<span class="k">long long</span> d = min(a, b); d &gt;= 1; d--)
+    <span class="k">if</span> (a % d == 0 &amp;&amp; b % d == 0) { cout &lt;&lt; d; <span class="k">break</span>; }</code></pre>
+<p>Trường hợp xấu cần tới <code>min(a, b)</code> lần thử, tức <code>10<sup>18</sup></code>: không thể.</p>
+<h3>Cách 2: dùng phân tích thừa số nguyên tố</h3>
+<p><code>gcd</code> là tích các thừa số nguyên tố chung với số mũ nhỏ nhất. Nhưng phải phân tích cả hai số, mà với số cỡ <code>10<sup>18</sup></code> thử chia mất khoảng <code>10<sup>9</sup></code> phép, vẫn quá chậm (và sàng thì không dùng được cho số lớn như vậy).</p>
+<div class="box w">❓ <b>Hãy nghĩ:</b> xét <code>48</code> và <code>18</code>. Ta có <code>48 = 2 × 18 + 12</code>. Hãy liệt kê ước chung của <code>(48, 18)</code> và ước chung của <code>(18, 12)</code>. Chúng liên hệ với nhau thế nào?</div>
+</section>
+
+<section id="y">
+<h2>2. Ý tưởng: thuật toán Euclid</h2>
+<div class="box"><b>gcd(a, b) = gcd(b, a mod b)</b>, và <b>gcd(a, 0) = a</b>.</div>
+<p>Mỗi bước thay cặp <code>(a, b)</code> bằng cặp <b>nhỏ hơn</b> <code>(b, a mod b)</code>, lặp lại cho đến khi số thứ hai bằng 0; khi đó số còn lại là <code>gcd</code>.</p>
+<h3>Vì sao <code>gcd(a, b) = gcd(b, r)</code> với <code>r = a mod b</code>?</h3>
+<p>Viết <code>a = q × b + r</code> (<code>q</code> là thương, <code>r</code> là số dư). Ta chứng minh hai cặp có <b>cùng tập ước chung</b>:</p>
+<ul>
+<li>Nếu <code>d</code> chia hết <code>a</code> và <code>b</code> thì <code>d</code> chia hết <code>a − q × b = r</code>. Vậy <code>d</code> là ước chung của <code>(b, r)</code>.</li>
+<li>Ngược lại, nếu <code>d</code> chia hết <code>b</code> và <code>r</code> thì <code>d</code> chia hết <code>q × b + r = a</code>. Vậy <code>d</code> là ước chung của <code>(a, b)</code>.</li>
+</ul>
+<p>Hai cặp có cùng các ước chung, nên có cùng ước chung lớn nhất. Với ví dụ <code>(48, 18)</code> và <code>(18, 12)</code> ở trên, cả hai đều có ước chung <code>1, 2, 3, 6</code>.</p>
+<h3>Vì sao nhanh?</h3>
+<p>Khi <code>a ≥ b</code>, số dư luôn nhỏ hơn <b>một nửa</b> số bị chia: <code>a mod b &lt; a / 2</code>. Thật vậy, nếu <code>b ≤ a/2</code> thì dư <code>&lt; b ≤ a/2</code>; nếu <code>b &gt; a/2</code> thì <code>q = 1</code> và dư <code>= a − b &lt; a/2</code>. Vì vậy cứ <b>hai bước</b> thì các số giảm ít nhất một nửa, và số bước là <b>O(log min(a, b))</b>. Với số cỡ <code>10<sup>18</sup></code>, trường hợp xấu nhất (hai số Fibonacci liên tiếp) chỉ khoảng <b>85 bước</b>.</p>
+<div class="box">💡 <b>Vì sao dùng phép chia dư mà không dùng phép trừ?</b> Cũng đúng là <code>gcd(a, b) = gcd(a − b, b)</code>, nhưng với <code>(10<sup>18</sup>, 1)</code> sẽ phải trừ <code>10<sup>18</sup></code> lần. Phép chia dư gộp tất cả các lần trừ liên tiếp làm một: <code>10<sup>18</sup> mod 1 = 0</code> chỉ trong một bước.</div>
+</section>
+
+<section id="code">
+<h2>3. Cài đặt</h2>
+<pre><code>#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">long long</span> ucln(<span class="k">long long</span> a, <span class="k">long long</span> b) {
+    <span class="k">while</span> (b != 0) {
+        a %= b;               <span class="c">// a nhận số dư</span>
+        swap(a, b);           <span class="c">// đổi chỗ: cặp mới (b, a mod b)</span>
+    }
+    <span class="k">return</span> a;
+}
+
+<span class="k">int</span> main() {
+    <span class="k">long long</span> a, b; cin &gt;&gt; a &gt;&gt; b;
+    cout &lt;&lt; ucln(a, b);
+}</code></pre>
+<p>Cách viết đệ quy cho gọn: <code>long long ucln(long long a, long long b) { return b == 0 ? a : ucln(b, a % b); }</code>. C++17 có sẵn <code>std::gcd(a, b)</code> trong <code>&lt;numeric&gt;</code> (và <code>__gcd(a, b)</code> trên GCC); khi thi nên biết cả cách tự viết.</p>
+<p><b>Độ phức tạp:</b> <code>O(log min(a, b))</code> thời gian, <code>O(1)</code> bộ nhớ. Nếu <code>a &lt; b</code>, bước đầu <code>a %= b</code> giữ nguyên <code>a</code> rồi đổi chỗ, nên không cần sắp xếp trước.</p>
+</section>
+
+<section id="vd">
+<h2>4. Chạy thử với dữ liệu mẫu</h2>
+<p><code>gcd(1071, 462)</code>:</p>
+<div class="tbl"><table>
+<tr><th>Bước</th><th>a</th><th>b</th><th>a = q × b + r</th><th>Cặp mới (b, r)</th></tr>
+<tr><td>1</td><td>1071</td><td>462</td><td>1071 = 2 × 462 + 147</td><td>(462, 147)</td></tr>
+<tr><td>2</td><td>462</td><td>147</td><td>462 = 3 × 147 + 21</td><td>(147, 21)</td></tr>
+<tr><td>3</td><td>147</td><td>21</td><td>147 = 7 × 21 + 0</td><td>(21, 0)</td></tr>
+<tr><td>4</td><td>21</td><td>0</td><td colspan="2">b = 0: dừng, <code>gcd = </code><b>21</b></td></tr>
+</table></div>
+<p>Kết quả <code>21</code> ✔ (kiểm tra: <code>1071 = 21 × 51</code>, <code>462 = 21 × 22</code>, và <code>51</code> với <code>22</code> không còn ước chung ngoài 1). Chỉ 3 phép chia, so với hàng trăm lần thử của cách 1. Ví dụ nhỏ hơn: <code>gcd(48, 18)</code>: <code>48 mod 18 = 12</code>, <code>18 mod 12 = 6</code>, <code>12 mod 6 = 0</code> → <b>6</b>.</p>
+</section>
+
+<section id="bcnn">
+<h2>5. BCNN và UCLN của nhiều số</h2>
+<h3>Bội chung nhỏ nhất</h3>
+<div class="box"><b>gcd(a, b) × lcm(a, b) = a × b</b>, nên <b>lcm(a, b) = a / gcd(a, b) × b</b>.</div>
+<p>Vì sao? Đặt <code>g = gcd(a, b)</code> và <code>a = g × a'</code>, <code>b = g × b'</code> với <code>a'</code>, <code>b'</code> nguyên tố cùng nhau. Bội chung nhỏ nhất là <code>g × a' × b'</code>, chính là <code>(a / g) × b</code>. Với <code>12</code> và <code>18</code>: <code>g = 6</code>, <code>lcm = 12 / 6 × 18 = 36</code> ✔ (và <code>6 × 36 = 216 = 12 × 18</code>).</p>
+<pre><code><span class="k">long long</span> bcnn(<span class="k">long long</span> a, <span class="k">long long</span> b) {
+    <span class="k">return</span> a / ucln(a, b) * b;      <span class="c">// chia trước, nhân sau</span>
+}</code></pre>
+<div class="box w"><b>Chia trước, nhân sau:</b> <code>a * b / ucln(a, b)</code> có thể tràn ở bước <code>a * b</code> (với <code>a, b ~ 10<sup>9</sup></code> đã được <code>10<sup>18</sup></code>, sát giới hạn <code>long long</code>). Viết <code>a / ucln(a, b) * b</code> thì phép chia hết, số nhỏ lại trước khi nhân. Kết quả BCNN vẫn có thể rất lớn, hãy kiểm tra đề có đảm bảo vừa <code>long long</code> không.</div>
+<h3>UCLN của cả dãy</h3>
+<p>UCLN có tính kết hợp: <code>gcd(a, b, c) = gcd(gcd(a, b), c)</code>. Duyệt dãy, giữ <code>g</code> hiện tại và cập nhật <code>g = ucln(g, a[i])</code>, bắt đầu từ <code>g = 0</code> (vì <code>gcd(0, x) = x</code>). Nếu <code>g</code> về 1 thì có thể dừng sớm.</p>
+<pre><code><span class="k">long long</span> g = 0;
+<span class="k">for</span> (<span class="k">long long</span> x : a) g = ucln(g, x);</code></pre>
+<div class="tbl"><table>
+<tr><th>Tính chất</th><th>Công thức</th></tr>
+<tr><td class="l">Với số 0</td><td class="l"><code>gcd(a, 0) = a</code></td></tr>
+<tr><td class="l">Với số 1</td><td class="l"><code>gcd(a, 1) = 1</code></td></tr>
+<tr><td class="l">Nhân cả hai với <code>k</code></td><td class="l"><code>gcd(ka, kb) = k × gcd(a, b)</code></td></tr>
+<tr><td class="l">Kết hợp</td><td class="l"><code>gcd(a, b, c) = gcd(gcd(a, b), c)</code></td></tr>
+<tr><td class="l">Nguyên tố cùng nhau</td><td class="l"><code>gcd(a, b) = 1</code></td></tr>
+</table></div>
+</section>
+
+<section id="bai-tap">
+<h2>6. Bài tập nâng dần</h2>
+<p>Với mỗi bài hãy tự hỏi: <i>"gcd hoặc lcm ở đâu trong đề? Có nên chia trước khi nhân để tránh tràn không?"</i></p>
+
+<div class="bt"><h3>Bài 1. Rút gọn phân số <span class="lv">(cơ bản)</span></h3>
+<p>Cho phân số <code>a / b</code> (<code>1 ≤ a, b ≤ 10<sup>18</sup></code>). In phân số tối giản.<br><i>Ví dụ:</i> <code>12 18</code> → <code>2/3</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> chia cả tử và mẫu cho <code>gcd(a, b)</code>.</p>
+<pre><code><span class="k">long long</span> g = ucln(a, b);
+cout &lt;&lt; a / g &lt;&lt; "/" &lt;&lt; b / g;</code></pre>
+<p><i>Kiểm tra:</i> <code>gcd(12, 18) = 6</code> nên <code>12/6 = 2</code>, <code>18/6 = 3</code> → <code>2/3</code> ✔</p></div></details></div>
+
+<div class="bt"><h3>Bài 2. UCLN của cả dãy <span class="lv">(dễ)</span></h3>
+<p>Cho <code>n</code> số nguyên dương (<code>n ≤ 10<sup>5</sup></code>, mỗi số <code>≤ 10<sup>18</sup></code>). In UCLN của tất cả.<br><i>Ví dụ:</i> <code>12 18 30</code> → <code>6</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> đúng đoạn "UCLN của cả dãy" ở mục 5: bắt đầu <code>g = 0</code> rồi cập nhật dần.</p>
+<pre><code><span class="k">long long</span> g = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) { <span class="k">long long</span> x; cin &gt;&gt; x; g = ucln(g, x); }
+cout &lt;&lt; g;</code></pre>
+<p><i>Kiểm tra:</i> <code>gcd(0, 12) = 12</code>, <code>gcd(12, 18) = 6</code>, <code>gcd(6, 30) = 6</code> ✔. Mỗi phần tử tốn <code>O(log)</code> nên cả dãy rất nhanh.</p></div></details></div>
+
+<div class="bt"><h3>Bài 3. Đếm số chia hết cho a hoặc b <span class="lv">(dễ, kết hợp bao hàm - loại trừ)</span></h3>
+<p>Cho <code>N ≤ 10<sup>18</sup></code> và <code>a, b ≤ 10<sup>9</sup></code>. Đếm số nguyên trong <code>[1, N]</code> chia hết cho <code>a</code> <b>hoặc</b> <code>b</code>.<br><i>Ví dụ:</i> <code>N = 100</code>, <code>a = 4</code>, <code>b = 6</code> → <code>33</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> số bội của <code>a</code> trong <code>[1, N]</code> là <code>N / a</code> (như bài đếm bội ở trang Chia hết, ước và bội). Cộng số bội của <code>a</code> và của <code>b</code>, nhưng các số chia hết cho <b>cả hai</b> bị đếm hai lần. Các số đó chính là bội của <code>lcm(a, b)</code>, nên trừ đi <code>N / lcm(a, b)</code>.</p>
+<pre><code>cout &lt;&lt; N / a + N / b - N / bcnn(a, b);</code></pre>
+<p><i>Kiểm tra:</i> <code>lcm(4, 6) = 12</code>; <code>100/4 = 25</code>, <code>100/6 = 16</code>, <code>100/12 = 8</code>; <code>25 + 16 − 8 = 33</code> ✔. Với <code>a, b ≤ 10<sup>9</sup></code>, <code>lcm ≤ 10<sup>18</sup></code> vừa <code>long long</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 4. Đếm số nguyên tố cùng nhau với n <span class="lv">(trung bình)</span></h3>
+<p>Cho <code>n ≤ 10<sup>6</sup></code>. Đếm số <code>x</code> trong <code>[1, n]</code> sao cho <code>gcd(x, n) = 1</code>.<br><i>Ví dụ:</i> <code>n = 12</code> → <code>4</code> (các số 1, 5, 7, 11)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> với <code>n ≤ 10<sup>6</sup></code> có thể thử từng <code>x</code> và tính <code>gcd(x, n)</code>; mỗi lần chỉ <code>O(log n)</code> nên tổng <code>O(n log n)</code>, vẫn nhanh.</p>
+<pre><code><span class="k">int</span> dem = 0;
+<span class="k">for</span> (<span class="k">int</span> x = 1; x &lt;= n; x++)
+    <span class="k">if</span> (ucln(x, n) == 1) dem++;
+cout &lt;&lt; dem;</code></pre>
+<p><i>Kiểm tra</i> <code>n = 12</code>: các số có <code>gcd</code> với 12 bằng 1 là 1, 5, 7, 11 → <code>4</code> ✔. (Giá trị này gọi là hàm Euler <code>φ(n)</code>; sau này có thể học công thức tính nhanh hơn từ phân tích thừa số.)</p></div></details></div>
+
+<div class="bt"><h3>Bài 5. Xóa một phần tử để UCLN lớn nhất <span class="lv">(khá)</span></h3>
+<p>Cho <code>n ≥ 2</code> số nguyên dương (<code>n ≤ 10<sup>5</sup></code>). Phải xóa <b>đúng một</b> phần tử. Sau khi xóa, UCLN của các số còn lại lớn nhất có thể là bao nhiêu?<br><i>Ví dụ:</i> <code>2 12 18</code> → <code>6</code> (xóa số 2, còn <code>12 18</code> có UCLN 6)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> thử xóa từng phần tử rồi tính lại UCLN của <code>n − 1</code> số còn lại thì tốn <code>O(n²)</code>. Dùng ý tưởng của <b>mảng cộng dồn</b> nhưng với phép <code>gcd</code>: <code>pre[i]</code> là UCLN của <code>i</code> phần tử đầu, <code>suf[i]</code> là UCLN của các phần tử từ vị trí <code>i</code> đến cuối. Khi xóa phần tử <code>i</code>, UCLN còn lại là <code>gcd(pre[i], suf[i+1])</code>. Dùng <code>pre[0] = 0</code> và <code>suf[n] = 0</code> (vì <code>gcd(0, x) = x</code>).</p>
+<pre><code>vector&lt;<span class="k">long long</span>&gt; pre(n + 1, 0), suf(n + 2, 0);        <span class="c">// a đánh số từ 0</span>
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) pre[i + 1] = ucln(pre[i], a[i]);
+<span class="k">for</span> (<span class="k">int</span> i = n - 1; i &gt;= 0; i--) suf[i] = ucln(suf[i + 1], a[i]);
+<span class="k">long long</span> best = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++)
+    best = max(best, ucln(pre[i], suf[i + 1]));
+cout &lt;&lt; best;</code></pre>
+<p><i>Kiểm tra</i> <code>2 12 18</code>: xóa <code>2</code> → <code>gcd(0, 6) = 6</code>; xóa <code>12</code> → <code>gcd(2, 18) = 2</code>; xóa <code>18</code> → <code>gcd(2, 12) = 2</code> → lớn nhất <b>6</b> ✔. Độ phức tạp <code>O(n log)</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Cặp có UCLN lớn nhất <span class="lv">(khó)</span></h3>
+<p>Cho <code>n</code> số nguyên dương (<code>2 ≤ n ≤ 10<sup>5</sup></code>, mỗi số <code>≤ 10<sup>6</sup></code>). Chọn hai phần tử ở hai vị trí khác nhau sao cho UCLN của chúng lớn nhất. In UCLN đó.<br><i>Ví dụ:</i> <code>2 4 6 9</code> → <code>3</code> (cặp <code>6, 9</code>)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> thử mọi cặp là <code>O(n²)</code>: quá chậm. Đảo ngược cách hỏi: thay vì "cặp nào có gcd lớn", hãy hỏi "<b>với mỗi giá trị <code>g</code>, có ít nhất hai phần tử cùng chia hết cho <code>g</code> không?</b>". Duyệt <code>g</code> từ <b>lớn xuống nhỏ</b>: <code>g</code> đầu tiên có ít nhất hai phần tử chia hết cho nó chính là đáp án. (Hai phần tử đó có UCLN là bội của <code>g</code>, tức không nhỏ hơn <code>g</code>; mà không có <code>g'</code> lớn hơn thỏa điều kiện, nên UCLN đúng bằng <code>g</code>.)</p>
+<p>Để đếm nhanh các phần tử chia hết cho <code>g</code>, lập mảng đếm <code>cnt[v]</code> (số lần giá trị <code>v</code> xuất hiện) rồi cộng <code>cnt[g] + cnt[2g] + cnt[3g] + …</code>: đây là cách duyệt "các bội của <code>g</code>" ở bài 4 của trang Chia hết, ước và bội.</p>
+<pre><code><span class="k">int</span> M = *max_element(a.begin(), a.end());
+vector&lt;<span class="k">int</span>&gt; cnt(M + 1, 0);
+<span class="k">for</span> (<span class="k">int</span> x : a) cnt[x]++;
+<span class="k">for</span> (<span class="k">int</span> g = M; g &gt;= 1; g--) {
+    <span class="k">int</span> tong = 0;
+    <span class="k">for</span> (<span class="k">int</span> m = g; m &lt;= M; m += g) tong += cnt[m];
+    <span class="k">if</span> (tong &gt;= 2) { cout &lt;&lt; g; <span class="k">break</span>; }
+}</code></pre>
+<p><i>Chạy thử</i> <code>2 4 6 9</code> (<code>M = 9</code>): <code>g = 9</code> chỉ có phần tử 9 (<code>tong = 1</code>); <code>g = 8, 7, 6, 5, 4</code> đều chưa đủ hai phần tử; <code>g = 3</code> có <code>6</code> và <code>9</code> (<code>tong = 2</code>) → <b>3</b> ✔. Hai phần tử bằng nhau cũng tính (ví dụ <code>5 5</code> cho đáp án <code>5</code>). Độ phức tạp <code>O(M log M)</code> nhờ tổng điều hòa.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>7. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Tràn số khi tính BCNN:</b> viết <code>a / ucln(a, b) * b</code>, không viết <code>a * b / ucln(a, b)</code>. Kết quả BCNN vẫn có thể vượt <code>long long</code>; kiểm tra giới hạn của đề.</div>
+<div class="box w"><b>Dùng <code>int</code>:</b> số đến <code>10<sup>18</sup></code> cần <code>long long</code>. Hàm <code>ucln</code> cũng nên nhận và trả về <code>long long</code>.</div>
+<div class="box w"><b>Quên <code>g = 0</code> làm giá trị khởi đầu khi gộp dãy:</b> bắt đầu từ <code>0</code> vì <code>gcd(0, x) = x</code>. Nếu bắt đầu từ <code>1</code> thì kết quả luôn là 1.</div>
+<div class="box w"><b>Trường hợp có số 0:</b> <code>gcd(a, 0) = a</code>, còn <code>gcd(0, 0) = 0</code> (không phải đáp án hợp lệ của nhiều đề). BCNN với số 0 thì chia cho <code>gcd = 0</code> gây lỗi, hãy xử lý riêng.</div>
+<div class="box w"><b>Số âm:</b> thuật toán Euclid cho kết quả mong muốn với số không âm. Nếu đề có số âm, lấy giá trị tuyệt đối trước.</div>
+<div class="box w"><b>Nhầm Euclid dùng phép trừ với phép chia dư:</b> phép trừ có thể mất tới hàng tỷ bước (ví dụ <code>(10<sup>18</sup>, 1)</code>); luôn dùng <code>%</code>.</div>
+<div class="box"><b>Tóm tắt:</b> <code>gcd(a, b) = gcd(b, a mod b)</code>, <code>gcd(a, 0) = a</code>: thuật toán Euclid chạy trong <code>O(log)</code> (chỉ khoảng 85 bước cho số đến <code>10<sup>18</sup></code>). <code>lcm(a, b) = a / gcd(a, b) × b</code> (chia trước nhân sau). UCLN của dãy: gộp dần từ <code>g = 0</code>; có thể làm "tiền tố, hậu tố" như mảng cộng dồn (bài 5). Khi cần gcd lớn nhất giữa các cặp, đảo cách hỏi sang "các bội của <code>g</code>" (bài 6).<br><b>Chủ đề tiếp theo:</b> Phép toán modulo và lũy thừa nhanh.</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

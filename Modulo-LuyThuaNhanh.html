@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Phép toán modulo và lũy thừa nhanh trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;--out:#ffd2d2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+td.o{background:var(--out)}
+td.l{text-align:left}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>⚡ Phép toán modulo và lũy thừa nhanh</h1>
+<p>Lấy dư để không tràn số, và tính a^b mod m với b đến 10^18 chỉ trong khoảng 60 phép nhân</p>
+</header>
+<nav>
+<a href="#kn">1. Phép toán modulo</a><a href="#bt">2. Bài toán mở đầu</a><a href="#y">3. Ý tưởng</a><a href="#code">4. Cài đặt</a><a href="#vd">5. Chạy thử</a><a href="#bai-tap">6. Bài tập</a><a href="#luu">7. Lưu ý</a>
+</nav>
+<main>
+
+<section id="kn">
+<h2>1. Nhắc lại phép toán modulo</h2>
+<p><code>a mod m</code> là <b>số dư</b> khi chia <code>a</code> cho <code>m</code>, viết trong C++ là <code>a % m</code>. Nhiều bài đếm cho đáp án rất lớn nên đề yêu cầu "<b>in kết quả chia lấy dư cho <code>10<sup>9</sup> + 7</code></b>" (một số nguyên tố quen thuộc). Muốn làm được điều đó mà không bị tràn số, ta phải lấy dư <b>trong lúc tính</b>, không đợi đến cuối.</p>
+<p>May mắn là phép cộng, trừ, nhân đều "tương thích" với lấy dư:</p>
+<div class="tbl"><table>
+<tr><th>Phép tính</th><th>Quy tắc</th></tr>
+<tr><td class="l">Cộng</td><td class="l"><code>(a + b) mod m = ((a mod m) + (b mod m)) mod m</code></td></tr>
+<tr><td class="l">Trừ</td><td class="l"><code>(a − b) mod m = ((a mod m) − (b mod m) + m) mod m</code></td></tr>
+<tr><td class="l">Nhân</td><td class="l"><code>(a × b) mod m = ((a mod m) × (b mod m)) mod m</code></td></tr>
+</table></div>
+<p><b>Vì sao đúng?</b> Viết <code>a = q₁·m + r₁</code>, <code>b = q₂·m + r₂</code>. Khi nhân: <code>a·b = m·(…) + r₁·r₂</code>, nên phần dư của <code>a·b</code> chính là phần dư của <code>r₁·r₂</code>. Ví dụ <code>(7 × 8) mod 5</code>: <code>56 mod 5 = 1</code>; còn <code>(7 mod 5) × (8 mod 5) = 2 × 3 = 6</code>, <code>6 mod 5 = 1</code> ✔.</p>
+<div class="box w"><b>Hai lưu ý:</b> (1) <b>không</b> có quy tắc đơn giản tương tự cho phép <b>chia</b> (muốn chia modulo phải dùng nghịch đảo, sẽ học ở trang sau). (2) Với số âm, C++ cho dư âm: <code>(−12) % 7 = −5</code>. Muốn dư không âm hãy viết <code>((x % m) + m) % m</code> (cho <code>2</code>).</div>
+</section>
+
+<section id="bt">
+<h2>2. Bài toán mở đầu: lũy thừa modulo</h2>
+<div class="box"><b>Đề bài.</b> Cho <code>a</code>, <code>b</code>, <code>m</code> (<code>a ≤ 10<sup>9</sup></code>, <code>b ≤ 10<sup>18</sup></code>, <code>2 ≤ m ≤ 10<sup>9</sup>+7</code>). Tính <code>a<sup>b</sup> mod m</code>.<br><i>Ví dụ:</i> <code>a = 3</code>, <code>b = 13</code>, <code>m = 1000</code> → <code>323</code> (vì <code>3<sup>13</sup> = 1 594 323</code>)</div>
+<h3>Cách 1: nhân dần b lần</h3>
+<pre><code><span class="k">long long</span> r = 1;
+<span class="k">for</span> (<span class="k">long long</span> i = 0; i &lt; b; i++) r = r * (a % m) % m;</code></pre>
+<p>Lấy dư mỗi bước nên không tràn, nhưng cần <code>b = 10<sup>18</sup></code> lần nhân. Với <code>10<sup>8</sup></code> phép mỗi giây, đó là <code>10<sup>10</sup></code> giây, hơn <b>ba trăm năm</b>.</p>
+<div class="box w">❓ <b>Hãy nghĩ:</b> <code>13 = 8 + 4 + 1</code>, nên <code>3<sup>13</sup> = 3<sup>8</sup> × 3<sup>4</sup> × 3<sup>1</sup></code>. Để có <code>3<sup>1</sup>, 3<sup>2</sup>, 3<sup>4</sup>, 3<sup>8</sup></code>, mỗi số liên hệ với số trước nó thế nào? Cần tính bao nhiêu lũy thừa như vậy nếu số mũ cỡ <code>10<sup>18</sup></code>?</div>
+</section>
+
+<section id="y">
+<h2>3. Ý tưởng: bình phương liên tiếp</h2>
+<p>Viết số mũ <code>b</code> ở dạng <b>nhị phân</b>. Ví dụ <code>13 = 1101</code> (hai) nghĩa là <code>13 = 8 + 4 + 0 + 1</code>. Khi đó <code>a<sup>b</sup></code> là tích của <code>a<sup>2<sup>i</sup></sup></code> chỉ với những vị trí <code>i</code> mà bit của <code>b</code> bằng 1.</p>
+<p>Dãy <code>a<sup>1</sup>, a<sup>2</sup>, a<sup>4</sup>, a<sup>8</sup>, a<sup>16</sup>, …</code> rất dễ tạo: <b>mỗi số là bình phương của số đứng trước</b> (<code>a<sup>2<sup>i+1</sup></sup> = (a<sup>2<sup>i</sup></sup>)²</code>). Với <code>3<sup>13</sup></code>:</p>
+<div class="tbl"><table>
+<tr><th>i</th><th>Bit của 13</th><th>3<sup>2<sup>i</sup></sup></th><th>Có nhân vào kết quả?</th></tr>
+<tr><td>0</td><td>1</td><td>3</td><td class="i">có</td></tr>
+<tr><td>1</td><td>0</td><td>9</td><td>không</td></tr>
+<tr><td>2</td><td>1</td><td>81</td><td class="i">có</td></tr>
+<tr><td>3</td><td>1</td><td>6561</td><td class="i">có</td></tr>
+</table></div>
+<p>Kết quả: <code>3 × 81 × 6561 = 1 594 323 = 3<sup>13</sup></code> ✔. Số bước chỉ bằng số bit của <code>b</code>, tức khoảng <code>log<sub>2</sub> b ≈ 60</code> cho <code>b = 10<sup>18</sup></code>, thay vì <code>10<sup>18</sup></code>: đây gọi là <b>lũy thừa nhanh</b> (lũy thừa nhị phân), <b>O(log b)</b>.</p>
+<p><b>Cách viết:</b> duyệt các bit của <code>b</code> từ thấp lên cao. Với mỗi bit: nếu bit bằng 1 thì <b>nhân cơ sở vào kết quả</b>; sau đó <b>bình phương cơ sở</b> và dịch <code>b</code> sang phải một bit. Mỗi phép nhân đều lấy dư <code>m</code>.</p>
+<div class="box">💡 <b>Cách nhìn đệ quy tương đương:</b> <code>a<sup>b</sup> = (a<sup>b/2</sup>)²</code> nếu <code>b</code> chẵn, và <code>a × (a<sup>b/2</sup>)²</code> nếu <code>b</code> lẻ. Mỗi lần số mũ giảm một nửa, giống tìm kiếm nhị phân: <b>chia đôi bài toán</b> thay vì giảm từng đơn vị.</div>
+</section>
+
+<section id="code">
+<h2>4. Cài đặt</h2>
+<pre><code>#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">long long</span> luyThua(<span class="k">long long</span> a, <span class="k">long long</span> b, <span class="k">long long</span> m) {
+    <span class="k">long long</span> r = 1 % m;              <span class="c">// 1 % m để đúng khi m = 1</span>
+    a %= m;                          <span class="c">// đưa cơ sở về [0, m)</span>
+    <span class="k">while</span> (b &gt; 0) {
+        <span class="k">if</span> (b &amp; 1) r = r * a % m;    <span class="c">// bit hiện tại bằng 1: nhân vào kết quả</span>
+        a = a * a % m;               <span class="c">// bình phương cơ sở</span>
+        b &gt;&gt;= 1;                     <span class="c">// sang bit tiếp theo</span>
+    }
+    <span class="k">return</span> r;
+}
+
+<span class="k">int</span> main() {
+    <span class="k">long long</span> a, b, m; cin &gt;&gt; a &gt;&gt; b &gt;&gt; m;
+    cout &lt;&lt; luyThua(a, b, m);
+}</code></pre>
+<p><b>Vì sao không tràn?</b> Luôn có <code>r, a &lt; m ≤ 10<sup>9</sup>+7</code> nên tích <code>r × a</code> nhỏ hơn khoảng <code>1,0000000140 × 10<sup>18</sup></code>, vừa trong <code>long long</code> (tối đa khoảng <code>9,2 × 10<sup>18</sup></code>). Nếu <code>m</code> có thể lớn hơn khoảng <code>3 × 10<sup>9</sup></code> thì phép nhân này tràn, xem bài 4.</p>
+<p><b>Độ phức tạp:</b> <code>O(log b)</code> phép nhân. <code>b &amp; 1</code> lấy bit cuối, <code>b &gt;&gt;= 1</code> bỏ bit cuối (chia nguyên cho 2).</p>
+</section>
+
+<section id="vd">
+<h2>5. Chạy thử với dữ liệu mẫu</h2>
+<p><code>a = 3</code>, <code>b = 13</code>, <code>m = 1000</code>. Cột "a" là cơ sở <b>trước</b> khi bình phương:</p>
+<div class="tbl"><table>
+<tr><th>Bước</th><th>b</th><th>b &amp; 1</th><th>a</th><th>r sau bước</th><th>a mới = a² mod 1000</th></tr>
+<tr><td>1</td><td>13</td><td>1</td><td>3</td><td>1 × 3 = 3</td><td>9</td></tr>
+<tr><td>2</td><td>6</td><td>0</td><td>9</td><td>3</td><td>81</td></tr>
+<tr><td>3</td><td>3</td><td>1</td><td>81</td><td>3 × 81 = 243</td><td>6561 mod 1000 = 561</td></tr>
+<tr><td>4</td><td>1</td><td>1</td><td>561</td><td>243 × 561 = 136 323, mod 1000 = <b>323</b></td><td>…</td></tr>
+<tr><td>5</td><td>0</td><td colspan="4">dừng</td></tr>
+</table></div>
+<p>Kết quả <code>323</code> ✔, chỉ 4 vòng lặp (<code>13</code> có 4 bit). Với <code>b = 10<sup>18</sup></code> cũng chỉ khoảng 60 vòng.</p>
+</section>
+
+<section id="bai-tap">
+<h2>6. Bài tập nâng dần</h2>
+<p>Với mỗi bài hãy tự hỏi: <i>"có phép tính nào bị tràn nếu không lấy dư ngay không? Có phép nhân nào cần 'nhân nhanh' không?"</i></p>
+
+<div class="bt"><h3>Bài 1. Tổng và tích modulo <span class="lv">(cơ bản)</span></h3>
+<p>Cho <code>n</code> số nguyên <code>a<sub>i</sub></code> (<code>|a<sub>i</sub>| ≤ 10<sup>18</sup></code>, có thể âm) và <code>m</code> (<code>2 ≤ m ≤ 10<sup>9</sup>+7</code>). In tổng và tích của <code>n</code> số, mỗi kết quả lấy dư cho <code>m</code> và <b>không âm</b>.<br><i>Ví dụ:</i> <code>-3 4</code>, <code>m = 7</code> → <code>1 2</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> đưa mỗi số về khoảng <code>[0, m)</code> bằng <code>((x % m) + m) % m</code>, rồi cộng và nhân, <b>lấy dư sau mỗi phép</b>.</p>
+<pre><code><span class="k">long long</span> s = 0, p = 1 % m;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+    <span class="k">long long</span> x; cin &gt;&gt; x;
+    x = ((x % m) + m) % m;
+    s = (s + x) % m;
+    p = p * x % m;
+}
+cout &lt;&lt; s &lt;&lt; " " &lt;&lt; p;</code></pre>
+<p><i>Kiểm tra</i> <code>-3 4</code>, <code>m = 7</code>: <code>−3</code> thành <code>4</code>; tổng <code>4 + 4 = 8</code>, <code>8 mod 7 = 1</code>; tích <code>4 × 4 = 16</code>, <code>16 mod 7 = 2</code> ✔ (khớp <code>−3 + 4 = 1</code> và <code>−12 mod 7 = 2</code>).</p></div></details></div>
+
+<div class="bt"><h3>Bài 2. Ba chữ số cuối <span class="lv">(dễ)</span></h3>
+<p>Cho <code>a ≤ 10<sup>9</sup></code>, <code>b ≤ 10<sup>18</sup></code>. In <b>ba chữ số cuối</b> của <code>a<sup>b</sup></code>, đủ ba chữ số (có thể có số 0 đứng đầu).<br><i>Ví dụ:</i> <code>a = 2</code>, <code>b = 10</code> → <code>024</code> (vì <code>2<sup>10</sup> = 1024</code>)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> ba chữ số cuối của một số chính là số dư khi chia cho <code>1000</code>. Gọi <code>luyThua(a, b, 1000)</code> rồi in có đệm số 0 bên trái.</p>
+<pre><code>#include &lt;iomanip&gt;
+<span class="k">long long</span> r = luyThua(a, b, 1000);
+cout &lt;&lt; setfill('0') &lt;&lt; setw(3) &lt;&lt; r;</code></pre>
+<p><i>Kiểm tra:</i> <code>2<sup>10</sup> mod 1000 = 24</code>, in đệm thành <code>024</code> ✔. Với <code>b = 0</code> kết quả là <code>1</code>, in <code>001</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 3. Số Fibonacci modulo <span class="lv">(dễ)</span></h3>
+<p>Dãy Fibonacci: <code>F(0) = 0</code>, <code>F(1) = 1</code>, <code>F(n) = F(n−1) + F(n−2)</code>. Cho <code>n ≤ 10<sup>7</sup></code>, in <code>F(n) mod (10<sup>9</sup>+7)</code>.<br><i>Ví dụ:</i> <code>n = 10</code> → <code>55</code>; <code>n = 50</code> → <code>586268941</code> (vì <code>F(50) = 12 586 269 025</code>)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> tính dần từ <code>F(0)</code>, <b>lấy dư ở mỗi phép cộng</b>. Nếu không lấy dư, <code>F(93)</code> đã vượt <code>long long</code>, trong khi lấy dư thì mọi giá trị luôn nhỏ hơn <code>10<sup>9</sup>+7</code>. Chỉ cần giữ hai giá trị gần nhất.</p>
+<pre><code><span class="k">const long long</span> MOD = 1000000007;
+<span class="k">long long</span> a = 0, b = 1;                  <span class="c">// F(0), F(1)</span>
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+    <span class="k">long long</span> c = (a + b) % MOD;
+    a = b; b = c;
+}
+cout &lt;&lt; a;                                  <span class="c">// sau n bước, a = F(n)</span></code></pre>
+<p><i>Kiểm tra:</i> <code>n = 10</code> cho <code>55</code>; <code>n = 50</code> cho <code>12586269025 mod (10<sup>9</sup>+7) = 586268941</code> ✔. Thời gian <code>O(n)</code>: chưa đủ nhanh cho <code>n = 10<sup>18</sup></code>, xem bài 6.</p></div></details></div>
+
+<div class="bt"><h3>Bài 4. Nhân modulo với m rất lớn <span class="lv">(trung bình)</span></h3>
+<p>Cho <code>a, b, m ≤ 10<sup>18</sup></code>. Tính <code>(a × b) mod m</code>.<br><i>Ví dụ:</i> <code>a = b = 999999999999999999</code>, <code>m = 1000000000000000000</code> → <code>1</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> <code>a × b</code> có thể tới <code>10<sup>36</sup></code>, tràn <code>long long</code> (và cả <code>r × a</code> trong hàm lũy thừa nếu <code>m</code> lớn). Dùng <b>ý tưởng của lũy thừa nhanh cho phép nhân</b>: coi <code>a × b</code> là cộng <code>a</code> với chính nó <code>b</code> lần, rồi cộng "gấp đôi" theo các bit của <code>b</code> (thay phép nhân bằng phép cộng, thay bình phương bằng nhân đôi):</p>
+<pre><code><span class="k">long long</span> nhan(<span class="k">long long</span> a, <span class="k">long long</span> b, <span class="k">long long</span> m) {
+    <span class="k">long long</span> r = 0;
+    a %= m;
+    <span class="k">while</span> (b &gt; 0) {
+        <span class="k">if</span> (b &amp; 1) r = (r + a) % m;
+        a = (a + a) % m;                    <span class="c">// nhân đôi</span>
+        b &gt;&gt;= 1;
+    }
+    <span class="k">return</span> r;
+}</code></pre>
+<p>Mỗi phép cộng cho kết quả nhỏ hơn <code>2m ≤ 2 × 10<sup>18</sup></code>, vừa <code>long long</code>. Độ phức tạp <code>O(log b)</code>. Cách ngắn hơn trên GCC: <code>(long long)((__int128)a * b % m)</code>.</p>
+<p><i>Kiểm tra:</i> <code>a ≡ −1 (mod 10<sup>18</sup>)</code> nên <code>a × a ≡ (−1)² = 1</code> ✔. Khi cần lũy thừa với <code>m</code> lớn, thay <code>r * a % m</code> bằng <code>nhan(r, a, m)</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 5. Tổng cấp số nhân modulo <span class="lv">(khá)</span></h3>
+<p>Cho <code>a</code>, <code>n ≤ 10<sup>18</sup></code> và <code>m ≤ 10<sup>9</sup>+7</code>. Tính <code>S = 1 + a + a² + … + a<sup>n−1</sup></code> modulo <code>m</code> (không dùng phép chia).<br><i>Ví dụ:</i> <code>a = 2</code>, <code>n = 10</code>, <code>m = 1000</code> → <code>23</code> (<code>1 + 2 + … + 512 = 1023</code>); <code>a = 3</code>, <code>n = 4</code>, <code>m = 1000</code> → <code>40</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> công thức <code>(a<sup>n</sup> − 1) / (a − 1)</code> cần phép chia modulo, không dùng được. Hãy <b>chia đôi bài toán</b> như lũy thừa nhanh. Gọi <code>S(n) = 1 + a + … + a<sup>n−1</sup></code>:</p>
+<ul>
+<li><b><code>n</code> chẵn:</b> <code>S(n) = S(n/2) + a<sup>n/2</sup> × S(n/2) = S(n/2) × (1 + a<sup>n/2</sup>)</code> (nửa sau là nửa đầu nhân với <code>a<sup>n/2</sup></code>).</li>
+<li><b><code>n</code> lẻ:</b> <code>S(n) = 1 + a × S(n−1)</code>.</li>
+<li><code>S(0) = 0</code>.</li>
+</ul>
+<pre><code><span class="k">long long</span> tongCSN(<span class="k">long long</span> a, <span class="k">long long</span> n, <span class="k">long long</span> m) {
+    <span class="k">if</span> (n == 0) <span class="k">return</span> 0;
+    <span class="k">if</span> (n % 2 == 1) <span class="k">return</span> (1 + a % m * tongCSN(a, n - 1, m)) % m;
+    <span class="k">long long</span> h = tongCSN(a, n / 2, m);
+    <span class="k">return</span> h * ((1 + luyThua(a, n / 2, m)) % m) % m;
+}</code></pre>
+<p>Mỗi hai lần gọi thì <code>n</code> giảm ít nhất một nửa nên có <code>O(log n)</code> tầng, mỗi tầng tốn <code>O(log n)</code> cho <code>luyThua</code>: tổng <code>O(log² n)</code>. <i>Chạy thử</i> <code>a = 3</code>, <code>n = 4</code>: <code>S(4) = S(2) × (1 + 3²)</code>, <code>S(2) = 1 + 3 × S(1) = 1 + 3 × 1 = 4</code>, nên <code>S(4) = 4 × 10 = 40</code> ✔. Kiểm tra thêm: với <code>a = 2</code> thì <code>S(n) = 2<sup>n</sup> − 1</code>, khớp với <code>luyThua(2, n, m) − 1</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Fibonacci với n rất lớn <span class="lv">(khó)</span></h3>
+<p>Cho <code>n ≤ 10<sup>18</sup></code>. In <code>F(n) mod (10<sup>9</sup>+7)</code>.<br><i>Ví dụ:</i> <code>n = 10</code> → <code>55</code>; <code>n = 50</code> → <code>586268941</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> cách ở bài 3 là <code>O(n)</code>, không kịp với <code>10<sup>18</sup></code>. Ý tưởng: biểu diễn bước chuyển <code>(F(k+1), F(k)) → (F(k+2), F(k+1))</code> bằng <b>phép nhân ma trận</b>: <code>M = [[1, 1], [1, 0]]</code>. Khi đó <code>M<sup>n</sup> = [[F(n+1), F(n)], [F(n), F(n−1)]]</code>, nên <code>F(n)</code> là phần tử ở hàng 0, cột 1 của <code>M<sup>n</sup></code>. Tính <code>M<sup>n</sup></code> bằng <b>đúng thuật toán lũy thừa nhanh</b>, chỉ thay phép nhân số bằng nhân ma trận (và phần tử đơn vị là ma trận đơn vị).</p>
+<pre><code><span class="k">typedef</span> array&lt;array&lt;<span class="k">long long</span>, 2&gt;, 2&gt; Mat;
+<span class="k">const long long</span> MOD = 1000000007;
+
+Mat nhan(<span class="k">const</span> Mat &amp;A, <span class="k">const</span> Mat &amp;B) {
+    Mat C = {};
+    <span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; 2; i++)
+        <span class="k">for</span> (<span class="k">int</span> j = 0; j &lt; 2; j++)
+            <span class="k">for</span> (<span class="k">int</span> k = 0; k &lt; 2; k++)
+                C[i][j] = (C[i][j] + A[i][k] * B[k][j]) % MOD;
+    <span class="k">return</span> C;
+}
+
+<span class="c">// trong main:</span>
+Mat R = {{{1, 0}, {0, 1}}};                 <span class="c">// ma trận đơn vị</span>
+Mat B = {{{1, 1}, {1, 0}}};
+<span class="k">while</span> (n &gt; 0) {
+    <span class="k">if</span> (n &amp; 1) R = nhan(R, B);
+    B = nhan(B, B);
+    n &gt;&gt;= 1;
+}
+cout &lt;&lt; R[0][1];</code></pre>
+<p><i>Kiểm tra:</i> <code>n = 10</code> cho <code>55</code>, <code>n = 50</code> cho <code>586268941</code> (khớp bài 3). Độ phức tạp <code>O(log n)</code> với hằng số nhỏ (mỗi phép nhân ma trận 2×2 là 8 phép nhân số). Ý tưởng "lũy thừa nhanh áp dụng cho bất kỳ phép nhân có tính kết hợp" dùng được cho rất nhiều dạng bài.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>7. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Quên lấy dư sau mỗi phép nhân:</b> chỉ cần một chỗ quên là kết quả trung gian tràn <code>long long</code> và sai mà không báo lỗi. Hãy viết <code>r = r * a % m</code> ngay trong một câu lệnh.</div>
+<div class="box w"><b>Số âm:</b> <code>x % m</code> có thể âm. Chuẩn hóa bằng <code>((x % m) + m) % m</code>; với phép trừ nhớ cộng <code>m</code> trước khi lấy dư.</div>
+<div class="box w"><b>Quên <code>a %= m</code> ở đầu:</b> nếu <code>a ≥ m</code>, phép nhân đầu tiên có thể tràn. Luôn đưa cơ sở về <code>[0, m)</code> trước.</div>
+<div class="box w"><b><code>m</code> quá lớn (trên khoảng <code>3 × 10<sup>9</sup></code>):</b> tích hai số nhỏ hơn <code>m</code> có thể tràn <code>long long</code>. Dùng <code>__int128</code> hoặc nhân nhị phân (bài 4).</div>
+<div class="box w"><b>Dùng <code>pow()</code> của thư viện:</b> <code>pow</code> trả về số thực, sai số với số lớn và không có lấy dư. Hãy tự viết <code>luyThua</code>.</div>
+<div class="box w"><b>Phép chia modulo:</b> <code>(a / b) mod m</code> <b>không</b> bằng <code>((a mod m) / (b mod m)) mod m</code>. Muốn chia phải nhân với nghịch đảo của <code>b</code> (trang tiếp theo).</div>
+<div class="box w"><b>Trường hợp biên:</b> <code>m = 1</code> thì mọi kết quả bằng 0 (vì vậy khởi tạo <code>r = 1 % m</code>); <code>b = 0</code> thì <code>a<sup>0</sup> = 1</code>.</div>
+<div class="box"><b>Tóm tắt:</b> cộng, trừ, nhân tương thích với lấy dư, nên <b>lấy dư ngay trong lúc tính</b> để không tràn; chia thì khác. <b>Lũy thừa nhanh</b>: duyệt các bit của <code>b</code>, bit 1 thì nhân kết quả, luôn bình phương cơ sở: <code>O(log b)</code> thay cho <code>O(b)</code>. Cùng ý tưởng "chia đôi" dùng được cho nhân (bài 4), tổng cấp số nhân (bài 5) và ma trận (bài 6).<br><b>Chủ đề tiếp theo:</b> Nghịch đảo modulo và tổ hợp mod p.</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

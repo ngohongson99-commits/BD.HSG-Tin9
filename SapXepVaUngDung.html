@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sắp xếp và ứng dụng trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>🔢 Sắp xếp và ứng dụng</h1>
+<p>Mảng đếm tần suất, counting sort, <code>sort</code> của C++ và sắp xếp theo tiêu chí riêng</p>
+</header>
+<nav>
+<a href="#dem">1. Mảng đếm</a><a href="#cs">2. Counting sort</a><a href="#sort">3. Hàm sort</a><a href="#cmp">4. Tiêu chí riêng</a><a href="#ud">5. Ứng dụng</a><a href="#bai-tap">6. Bài tập</a><a href="#luu">7. Lưu ý</a>
+</nav>
+<main>
+
+<section id="dem">
+<h2>1. Bài toán mở đầu: mảng đếm tần suất</h2>
+<div class="box"><b>Đề bài.</b> Cho <code>n</code> số nguyên, mỗi số nằm trong khoảng <code>0 … 1000</code>. Tìm giá trị xuất hiện <b>nhiều lần nhất</b> và số lần xuất hiện của nó (nếu có nhiều giá trị cùng nhiều nhất, lấy giá trị nhỏ nhất).<br><b>Giới hạn:</b> <code>n ≤ 10<sup>5</sup></code>.</div>
+<p><b>Ví dụ:</b> dãy <code>3 1 3 2 1 3</code> → giá trị <code>3</code>, xuất hiện <code>3</code> lần.</p>
+
+<h3>Cách 1: với mỗi phần tử, đếm lại cả dãy</h3>
+<pre><code><span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+    <span class="k">int</span> c = 0;
+    <span class="k">for</span> (<span class="k">int</span> j = 0; j &lt; n; j++) <span class="k">if</span> (a[j] == a[i]) c++;
+    <span class="c">// so sánh c với kết quả tốt nhất...</span>
+}</code></pre>
+<p>Hai vòng lặp lồng nhau: <code>n² = 10<sup>10</sup></code> phép so sánh, quá chậm. Và ta đang đếm đi đếm lại cùng một giá trị nhiều lần.</p>
+
+<h3>Ý tưởng: "bảng điểm danh"</h3>
+<p>Vì giá trị chỉ từ <code>0</code> đến <code>1000</code>, ta lập sẵn một bảng gồm 1001 ô: ô <code>cnt[v]</code> ghi <b>số lần giá trị <code>v</code> đã xuất hiện</b>. Đọc tới số nào thì tăng ô tương ứng thêm 1. Đây là "dùng giá trị làm chỉ số".</p>
+<pre><code>#include &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">const int</span> M = 1000;
+<span class="k">int</span> cnt[M + 1];                 <span class="c">// toàn cục: tự động bằng 0</span>
+
+<span class="k">int</span> main() {
+    <span class="k">int</span> n; cin &gt;&gt; n;
+    <span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+        <span class="k">int</span> x; cin &gt;&gt; x;
+        cnt[x]++;                   <span class="c">// điểm danh</span>
+    }
+    <span class="k">int</span> bestV = 0;
+    <span class="k">for</span> (<span class="k">int</span> v = 1; v &lt;= M; v++)
+        <span class="k">if</span> (cnt[v] &gt; cnt[bestV]) bestV = v;   <span class="c">// ">" nên ưu tiên giá trị nhỏ</span>
+    cout &lt;&lt; bestV &lt;&lt; " " &lt;&lt; cnt[bestV];
+}</code></pre>
+<p><b>Chạy thử</b> với <code>3 1 3 2 1 3</code>: sau khi đọc xong, <code>cnt[1] = 2</code>, <code>cnt[2] = 1</code>, <code>cnt[3] = 3</code>, các ô khác bằng 0. Tìm ô lớn nhất: <code>cnt[3] = 3</code> → in <code>3 3</code>.</p>
+<div class="tbl"><table>
+<tr><th>v</th><td>0</td><td class="h">1</td><td>2</td><td class="i">3</td><td>4</td><td>…</td></tr>
+<tr><th>cnt[v]</th><td>0</td><td class="h">2</td><td>1</td><td class="i">3</td><td>0</td><td>…</td></tr>
+</table></div>
+<p><b>Độ phức tạp:</b> <code>O(n + M)</code>: đọc <code>n</code> số, rồi quét <code>M</code> ô.</p>
+<div class="box w"><b>Điều kiện để dùng được:</b> giá trị phải là số nguyên <b>không âm</b> và <b>nhỏ</b> (cỡ vài triệu trở xuống), vì giá trị chính là chỉ số mảng. Nếu có số âm, số rất lớn (như 10<sup>9</sup>) hoặc là chuỗi thì cách này chưa dùng được; các cách thay thế sẽ nói ở mục 5 và ở chuyên đề sau.</div>
+</section>
+
+<section id="cs">
+<h2>2. Counting sort: sắp xếp mà không so sánh</h2>
+<p>Có bảng <code>cnt</code> rồi, ta đã biết mỗi giá trị xuất hiện bao nhiêu lần. Để in dãy đã sắp xếp tăng dần chỉ cần đi từ giá trị nhỏ đến lớn và <b>in mỗi giá trị <code>cnt[v]</code> lần</b>:</p>
+<pre><code><span class="k">for</span> (<span class="k">int</span> v = 0; v &lt;= M; v++)
+    <span class="k">for</span> (<span class="k">int</span> k = 0; k &lt; cnt[v]; k++)
+        cout &lt;&lt; v &lt;&lt; " ";</code></pre>
+<p>Ví dụ dãy <code>4 2 2 8 3 3 1</code>: <code>cnt[1]=1</code>, <code>cnt[2]=2</code>, <code>cnt[3]=2</code>, <code>cnt[4]=1</code>, <code>cnt[8]=1</code> → in ra <code>1 2 2 3 3 4 8</code>.</p>
+<p><b>Độ phức tạp:</b> <code>O(n + M)</code>, không phải <code>O(n log n)</code>. Khi giá trị nhỏ thì nhanh hơn <code>sort</code>. Đổi lại, nó tốn bộ nhớ <code>M</code> ô và chỉ dùng được với số nguyên trong khoảng nhỏ.</p>
+</section>
+
+<section id="sort">
+<h2>3. Hàm <code>sort</code> của C++</h2>
+<p>Với dữ liệu tổng quát (số âm, số lớn, số thực, chuỗi, …), ta dùng <code>sort</code> có sẵn trong <code>&lt;algorithm&gt;</code>, độ phức tạp <code>O(n log n)</code>.</p>
+<pre><code>#include &lt;algorithm&gt;
+#include &lt;functional&gt;
+
+<span class="k">int</span> a[5] = {5, 2, 9, 1, 7};
+sort(a, a + 5);                              <span class="c">// mảng tĩnh → 1 2 5 7 9</span>
+
+vector&lt;<span class="k">int</span>&gt; v = {5, 2, 9, 1, 7};
+sort(v.begin(), v.end());                    <span class="c">// vector → tăng dần</span>
+sort(v.begin(), v.end(), greater&lt;<span class="k">int</span>&gt;());   <span class="c">// giảm dần → 9 7 5 2 1</span></code></pre>
+<p><b>Cách đọc:</b> <code>sort(đầu, cuối)</code> sắp xếp các phần tử từ vị trí <code>đầu</code> đến <b>ngay trước</b> <code>cuối</code> (nửa mở). Với mảng tĩnh <code>a</code> gồm <code>n</code> phần tử: <code>sort(a, a + n)</code>. Nếu mảng đánh số từ 1: <code>sort(a + 1, a + n + 1)</code>.</p>
+<div class="box">💡 <b>Chọn công cụ:</b> giá trị nhỏ, không âm → mảng đếm (counting sort) nhanh hơn. Còn lại → <code>sort</code>.</div>
+</section>
+
+<section id="cmp">
+<h2>4. Sắp xếp theo tiêu chí riêng</h2>
+<p>Đôi khi "nhỏ hơn" không phải là so sánh số thông thường (ví dụ sắp học sinh theo điểm giảm dần). Ta đưa cho <code>sort</code> một <b>hàm so sánh</b> <code>cmp(x, y)</code>: trả về <code>true</code> nếu <b><code>x</code> phải đứng trước <code>y</code></b>.</p>
+<pre><code><span class="k">struct</span> HS { string ten; <span class="k">int</span> diem; };
+
+vector&lt;HS&gt; ds = {{"An", 8}, {"Binh", 9}, {"Chi", 8}};
+sort(ds.begin(), ds.end(), [](<span class="k">const</span> HS &amp;x, <span class="k">const</span> HS &amp;y) {
+    <span class="k">if</span> (x.diem != y.diem) <span class="k">return</span> x.diem &gt; y.diem;   <span class="c">// điểm cao đứng trước</span>
+    <span class="k">return</span> x.ten &lt; y.ten;                     <span class="c">// bằng điểm: tên theo thứ tự chữ cái</span>
+});
+<span class="c">// kết quả: Binh 9, An 8, Chi 8</span></code></pre>
+<p><b>Với <code>pair</code>:</b> mặc định sắp xếp theo thành phần thứ nhất, nếu bằng thì theo thành phần thứ hai.</p>
+<pre><code>vector&lt;pair&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; p = {{2, 5}, {1, 9}, {2, 3}};
+sort(p.begin(), p.end());         <span class="c">// (1,9) (2,3) (2,5)</span></code></pre>
+<div class="box w"><b>Quy tắc vàng:</b> hàm so sánh phải dùng <code>&lt;</code> hoặc <code>&gt;</code>, <b>không dùng <code>&lt;=</code> hoặc <code>&gt;=</code></b>. Hai phần tử bằng nhau thì <code>cmp</code> phải trả về <code>false</code> cả hai chiều, nếu không chương trình có thể lỗi hoặc sập.</div>
+</section>
+
+<section id="ud">
+<h2>5. Ứng dụng: sắp xếp rồi mới làm</h2>
+<p>Nhiều bài trở nên đơn giản khi dãy đã sắp xếp, vì <b>các phần tử bằng nhau (hoặc gần nhau) đứng cạnh nhau</b>.</p>
+<div class="box"><b>Bài mẫu.</b> Cho <code>n</code> số nguyên bất kỳ (có thể âm, có thể rất lớn). Kiểm tra dãy có hai phần tử trùng nhau hay không.<br><i>Ví dụ:</i> <code>7 -3 9 7 2</code> → có trùng.</div>
+<p>Thử mọi cặp thì <code>O(n²)</code>. Nhưng nếu sắp xếp trước, mọi giá trị trùng nhau sẽ liền kề: <code>-3 2 7 7 9</code>. Chỉ cần so sánh các phần tử liền kề.</p>
+<pre><code>sort(a.begin(), a.end());
+<span class="k">bool</span> trung = <span class="k">false</span>;
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt; n; i++)
+    <span class="k">if</span> (a[i] == a[i - 1]) trung = <span class="k">true</span>;
+cout &lt;&lt; (trung ? "CO" : "KHONG");</code></pre>
+<p>Tổng cộng <code>O(n log n)</code>. Cách này dùng được cho số âm và số lớn, là những trường hợp mà mảng đếm ở mục 1 chưa xử lý được (Bài 5 bên dưới dùng đúng ý tưởng này để đếm tần suất).</p>
+</section>
+
+<section id="bai-tap">
+<h2>6. Bài tập nâng dần</h2>
+<p>Với mỗi bài hãy tự hỏi: <i>"giá trị nhỏ và không âm thì dùng mảng đếm được không? Hay cần sắp xếp? Tiêu chí so sánh là gì?"</i></p>
+
+<div class="bt"><h3>Bài 1. Liệt kê giá trị và số lần xuất hiện <span class="lv">(cơ bản, mảng đếm)</span></h3>
+<p>Cho <code>n</code> số nguyên trong khoảng <code>0 … 10<sup>6</sup></code>. In mỗi giá trị xuất hiện kèm số lần, theo thứ tự giá trị tăng dần.<br><i>Ví dụ:</i> <code>3 1 3 2 1 3</code> → <code>1 2</code>, <code>2 1</code>, <code>3 3</code> (mỗi cặp một dòng)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> đếm bằng <code>cnt</code>, rồi quét <code>v</code> từ 0 đến 10<sup>6</sup>; ô nào lớn hơn 0 thì in. Quét theo thứ tự tăng của <code>v</code> nên kết quả tự động đã sắp xếp.</p>
+<pre><code>vector&lt;<span class="k">int</span>&gt; cnt(1000001, 0);
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) { <span class="k">int</span> x; cin &gt;&gt; x; cnt[x]++; }
+<span class="k">for</span> (<span class="k">int</span> v = 0; v &lt;= 1000000; v++)
+    <span class="k">if</span> (cnt[v] &gt; 0) cout &lt;&lt; v &lt;&lt; " " &lt;&lt; cnt[v] &lt;&lt; "\n";</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 2. Hai mảng có cùng các phần tử không? <span class="lv">(dễ)</span></h3>
+<p>Cho hai mảng <code>a</code> và <code>b</code> cùng <code>n</code> phần tử. Hỏi <code>b</code> có phải là một cách sắp xếp lại các phần tử của <code>a</code> không? In <code>YES</code> hoặc <code>NO</code>.<br><i>Ví dụ:</i> <code>a = 1 2 3 2</code>, <code>b = 2 1 2 3</code> → <code>YES</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> nếu hai mảng chỉ khác thứ tự thì sau khi sắp xếp cả hai, chúng phải giống hệt nhau. Với <code>vector</code>, có thể so sánh trực tiếp bằng <code>==</code>.</p>
+<pre><code>sort(a.begin(), a.end());
+sort(b.begin(), b.end());
+cout &lt;&lt; (a == b ? "YES" : "NO");</code></pre>
+<p>Cách khác (khi giá trị nhỏ, không âm): đếm tần suất của hai mảng bằng hai mảng <code>cnt</code> rồi so sánh từng ô.</p></div></details></div>
+
+<div class="bt"><h3>Bài 3. Tổng k số lớn nhất <span class="lv">(dễ)</span></h3>
+<p>Cho <code>n</code> số và số <code>k</code> (<code>k ≤ n</code>). In tổng của <code>k</code> số lớn nhất.<br><i>Ví dụ:</i> <code>5 1 9 3 7</code>, <code>k = 3</code> → <code>21</code> (9 + 7 + 5)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> sắp xếp giảm dần, rồi cộng <code>k</code> phần tử đầu.</p>
+<pre><code>sort(a.begin(), a.end(), greater&lt;<span class="k">int</span>&gt;());
+<span class="k">long long</span> s = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; k; i++) s += a[i];
+cout &lt;&lt; s;</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 4. Xếp hạng học sinh <span class="lv">(trung bình, hàm so sánh)</span></h3>
+<p>Cho <code>n</code> học sinh, mỗi học sinh gồm tên (không có khoảng trắng) và điểm. Sắp xếp theo <b>điểm giảm dần</b>, nếu bằng điểm thì theo <b>tên tăng dần</b> (thứ tự từ điển). In tên và điểm.<br><i>Ví dụ:</i> <code>An 8</code>, <code>Binh 9</code>, <code>Chi 8</code> → <code>Binh 9</code>, <code>An 8</code>, <code>Chi 8</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> dùng <code>struct</code> và hàm so sánh như mục 4: so điểm trước; nếu điểm khác nhau thì điểm cao đứng trước; nếu bằng thì so tên.</p>
+<pre><code><span class="k">struct</span> HS { string ten; <span class="k">int</span> diem; };
+vector&lt;HS&gt; ds(n);
+<span class="k">for</span> (<span class="k">auto</span> &amp;h : ds) cin &gt;&gt; h.ten &gt;&gt; h.diem;
+
+sort(ds.begin(), ds.end(), [](<span class="k">const</span> HS &amp;x, <span class="k">const</span> HS &amp;y) {
+    <span class="k">if</span> (x.diem != y.diem) <span class="k">return</span> x.diem &gt; y.diem;
+    <span class="k">return</span> x.ten &lt; y.ten;
+});
+<span class="k">for</span> (<span class="k">auto</span> &amp;h : ds) cout &lt;&lt; h.ten &lt;&lt; " " &lt;&lt; h.diem &lt;&lt; "\n";</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 5. Giá trị xuất hiện nhiều nhất khi số có thể âm hoặc rất lớn <span class="lv">(khá)</span></h3>
+<p>Giống bài mẫu mục 1, nhưng các số nằm trong khoảng <code>−10<sup>9</sup> … 10<sup>9</sup></code> nên <b>không</b> dùng được mảng đếm. In giá trị xuất hiện nhiều nhất và số lần (nhiều giá trị cùng nhiều nhất thì lấy giá trị nhỏ nhất).<br><i>Ví dụ:</i> <code>-5 100000000 -5 7 -5 7</code> → <code>-5 3</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> sắp xếp, khi đó các giá trị bằng nhau đứng thành từng <b>nhóm liên tiếp</b>. Chỉ cần quét một lượt và đếm độ dài của từng nhóm: gặp phần tử bằng phần tử trước thì tăng độ dài nhóm hiện tại, ngược lại bắt đầu nhóm mới. Dùng điều kiện <code>run &gt; best</code> (nghiêm ngặt) để nhóm có giá trị nhỏ hơn được ưu tiên khi bằng nhau.</p>
+<pre><code>sort(a.begin(), a.end());
+<span class="k">int</span> best = 1, run = 1; <span class="k">long long</span> bestVal = a[0];
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt; n; i++) {
+    <span class="k">if</span> (a[i] == a[i - 1]) run++;
+    <span class="k">else</span> run = 1;
+    <span class="k">if</span> (run &gt; best) { best = run; bestVal = a[i]; }
+}
+cout &lt;&lt; bestVal &lt;&lt; " " &lt;&lt; best;</code></pre>
+<p>Thời gian <code>O(n log n)</code>. Đây là "bản thay thế" của mảng đếm khi giá trị quá lớn hoặc có số âm.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Chọn nhiều đoạn không giao nhau nhất <span class="lv">(khó, sắp xếp rồi tham lam)</span></h3>
+<p>Cho <code>n</code> đoạn <code>[l, r)</code> (hai đoạn chỉ chạm nhau ở đầu mút, như <code>[1,3)</code> và <code>[3,5)</code>, thì <b>không</b> giao nhau). Chọn nhiều nhất có thể các đoạn đôi một không giao nhau. In số đoạn tối đa.<br><i>Ví dụ:</i> các đoạn <code>(1,3)</code>, <code>(2,5)</code>, <code>(4,7)</code>, <code>(6,8)</code> → <code>2</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> sắp xếp các đoạn theo <b>điểm kết thúc tăng dần</b>. Duyệt lần lượt: nếu đoạn hiện tại bắt đầu không sớm hơn điểm kết thúc của đoạn đã chọn gần nhất thì chọn nó. Lý do: đoạn kết thúc sớm nhất chừa ra nhiều chỗ nhất cho các đoạn sau, nên chọn nó không bao giờ làm đáp án tệ đi.</p>
+<p>Mẹo: lưu mỗi đoạn dưới dạng <code>pair(r, l)</code> (kết thúc trước) thì <code>sort</code> mặc định đã sắp xếp theo điểm kết thúc.</p>
+<pre><code>#include &lt;climits&gt;
+vector&lt;pair&lt;<span class="k">int</span>,<span class="k">int</span>&gt;&gt; seg(n);
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+    <span class="k">int</span> l, r; cin &gt;&gt; l &gt;&gt; r;
+    seg[i] = {r, l};
+}
+sort(seg.begin(), seg.end());
+
+<span class="k">int</span> cnt = 0, last = INT_MIN;
+<span class="k">for</span> (<span class="k">auto</span> &amp;s : seg)
+    <span class="k">if</span> (s.second &gt;= last) { cnt++; last = s.first; }
+cout &lt;&lt; cnt;</code></pre>
+<p><i>Chạy thử:</i> sau sắp xếp theo kết thúc: <code>(1,3) (2,5) (4,7) (6,8)</code>. Chọn <code>(1,3)</code>, <code>last = 3</code>; bỏ <code>(2,5)</code> vì <code>2 &lt; 3</code>; chọn <code>(4,7)</code>, <code>last = 7</code>; bỏ <code>(6,8)</code> vì <code>6 &lt; 7</code> → <b>2</b>.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>7. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Mảng đếm quá nhỏ:</b> nếu giá trị lớn nhất là <code>M</code> thì <code>cnt</code> phải có ít nhất <code>M + 1</code> ô (chỉ số <code>0…M</code>). Truy cập ngoài phạm vi gây lỗi khó tìm.</div>
+<div class="box w"><b>Mảng đếm với số âm hoặc số lớn:</b> <code>cnt[-5]</code> là sai, <code>cnt[1000000000]</code> không đủ bộ nhớ. Hãy dùng <code>sort</code> (như Bài 5) hoặc các cấu trúc ở chuyên đề sau.</div>
+<div class="box w"><b>Sai khoảng trong <code>sort</code>:</b> mảng đánh số từ 0 dùng <code>sort(a, a + n)</code>, mảng đánh số từ 1 dùng <code>sort(a + 1, a + n + 1)</code>.</div>
+<div class="box w"><b>Hàm so sánh dùng <code>&lt;=</code>:</b> phải dùng <code>&lt;</code> hoặc <code>&gt;</code> (xem mục 4).</div>
+<div class="box w"><b>Sắp xếp làm mất vị trí gốc:</b> nếu đề hỏi chỉ số ban đầu, hãy lưu kèm chỉ số, ví dụ <code>pair(giá trị, chỉ số)</code>. Khi cần giữ thứ tự ban đầu của các phần tử bằng nhau, dùng <code>stable_sort</code>.</div>
+<div class="box"><b>Tóm tắt:</b> giá trị nhỏ, không âm → mảng đếm (đếm tần suất, counting sort) ở <code>O(n + M)</code>. Dữ liệu bất kỳ → <code>sort</code> ở <code>O(n log n)</code>, kèm hàm so sánh khi cần tiêu chí riêng. Sắp xếp xong, các phần tử bằng nhau đứng cạnh nhau nên nhiều bài (trùng lặp, đếm nhóm, tham lam) trở nên dễ.</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

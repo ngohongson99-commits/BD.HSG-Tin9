@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tham lam (Greedy) trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;--out:#ffd2d2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+td.o{background:var(--out)}
+td.l{text-align:left}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>🍰 Tham lam (Greedy)</h1>
+<p>Mỗi bước chọn lựa chọn "tốt nhất trước mắt", không quay lại, và biết khi nào cách đó đúng</p>
+</header>
+<nav>
+<a href="#bt">1. Bài toán mở đầu</a><a href="#sai">2. Khi tham lam sai</a><a href="#mau">3. Bài mẫu chính</a><a href="#buoc">4. Ba bước giải</a><a href="#bai-tap">5. Bài tập</a><a href="#luu">6. Lưu ý</a>
+</nav>
+<main>
+
+<section id="bt">
+<h2>1. Bài toán mở đầu: đổi tiền</h2>
+<div class="box"><b>Đề bài.</b> Có các tờ tiền mệnh giá <code>100, 50, 10, 5, 1</code> (mỗi loại có vô hạn tờ). Đổi đúng số tiền <code>S</code> bằng <b>ít tờ nhất</b>.<br><i>Ví dụ:</i> <code>S = 289</code> → <code>11</code> tờ</div>
+<h3>Cách nghĩ rất tự nhiên</h3>
+<p>Muốn ít tờ thì phải dùng tờ có mệnh giá <b>lớn nhất có thể</b> trước. Lấy thật nhiều tờ lớn nhất, phần còn lại chuyển sang tờ nhỏ hơn. Mỗi bước ta chọn <b>điều tốt nhất ngay lúc đó</b> và không bao giờ quay lại sửa: đó là tư duy <b>tham lam</b> (greedy).</p>
+<div class="tbl"><table>
+<tr><th>Mệnh giá</th><th>Còn lại trước khi lấy</th><th>Số tờ</th><th>Còn lại sau</th></tr>
+<tr><td>100</td><td>289</td><td>2</td><td>89</td></tr>
+<tr><td>50</td><td>89</td><td>1</td><td>39</td></tr>
+<tr><td>10</td><td>39</td><td>3</td><td>9</td></tr>
+<tr><td>5</td><td>9</td><td>1</td><td>4</td></tr>
+<tr><td>1</td><td>4</td><td>4</td><td>0</td></tr>
+</table></div>
+<p>Tổng: <code>2 + 1 + 3 + 1 + 4 = 11</code> tờ.</p>
+<pre><code><span class="k">int</span> coins[] = {100, 50, 10, 5, 1};      <span class="c">// từ lớn đến nhỏ</span>
+<span class="k">long long</span> cnt = 0;
+<span class="k">for</span> (<span class="k">int</span> c : coins) {
+    cnt += S / c;                         <span class="c">// lấy càng nhiều tờ c càng tốt</span>
+    S %= c;                               <span class="c">// phần còn lại</span>
+}
+cout &lt;&lt; cnt;</code></pre>
+<p>Mỗi mệnh giá xử lý trong <code>O(1)</code>, cả bài chỉ vài phép tính. Nhanh hơn rất nhiều so với quy hoạch động ở chuyên đề trước.</p>
+</section>
+
+<section id="sai">
+<h2>2. Nhưng tham lam không phải lúc nào cũng đúng</h2>
+<p>Thử đổi hệ mệnh giá thành <code>1, 3, 4</code> và <code>S = 6</code>:</p>
+<div class="tbl"><table>
+<tr><th>Cách</th><th>Các tờ</th><th>Số tờ</th></tr>
+<tr><td>Tham lam (lấy tờ lớn nhất trước)</td><td>4 + 1 + 1</td><td class="o">3</td></tr>
+<tr><td>Tối ưu</td><td>3 + 3</td><td class="i">2</td></tr>
+</table></div>
+<p>Cùng một ý "lấy tờ lớn nhất trước", lần này cho đáp án <b>sai</b>. Vậy khi nào tham lam đúng?</p>
+<div class="box"><b>Quy tắc cần nhớ:</b> tham lam chỉ đúng khi ta <b>chứng minh được</b> (hoặc kiểm tra kỹ) rằng lựa chọn "tốt nhất trước mắt" không bao giờ làm mất đi đáp án tối ưu. Không thể chỉ "thấy hợp lý" rồi nộp bài.</div>
+<div class="tbl"><table>
+<tr><th>Đúng bằng tham lam</th><th>Cần quy hoạch động</th></tr>
+<tr><td class="l">Đổi tiền hệ <code>100, 50, 10, 5, 1</code> (mỗi mệnh giá là bội của mệnh giá nhỏ hơn kế nó)</td><td class="l">Đổi tiền hệ <code>1, 3, 4</code></td></tr>
+<tr><td class="l">Cái túi được lấy một <b>phần</b> món đồ (bài 3 ở dưới)</td><td class="l">Cái túi 0/1 (lấy hoặc không lấy cả món)</td></tr>
+</table></div>
+<p>Bài đổi tiền mệnh giá bất kỳ là ví dụ kinh điển: <b>cùng đề, khác dữ liệu, tham lam lúc đúng lúc sai</b>. Cho nên khi giải bài tham lam, bước chứng minh (hoặc kiểm tra bằng phản ví dụ) là không thể bỏ qua.</p>
+</section>
+
+<section id="mau">
+<h2>3. Bài mẫu chính: tổng thời gian chờ nhỏ nhất</h2>
+<div class="box"><b>Đề bài.</b> Có <code>n</code> khách hàng, khách <code>i</code> cần <code>t<sub>i</sub></code> phút để phục vụ. Nhân viên phục vụ <b>lần lượt từng người</b>, liên tục từ phút 0. <b>Thời gian chờ</b> của một khách là khoảng từ phút 0 đến lúc người đó bắt đầu được phục vụ. Hãy sắp thứ tự phục vụ để <b>tổng thời gian chờ</b> của mọi khách nhỏ nhất.<br><b>Giới hạn:</b> <code>n ≤ 10<sup>5</sup></code>.<br><i>Ví dụ:</i> <code>t = 5 3 2</code> → <code>7</code></div>
+<h3>Thử mọi thứ tự với ví dụ nhỏ</h3>
+<div class="tbl"><table>
+<tr><th>Thứ tự</th><th>Chờ của từng người</th><th>Tổng</th></tr>
+<tr><td>5, 3, 2</td><td>0, 5, 8</td><td>13</td></tr>
+<tr><td>5, 2, 3</td><td>0, 5, 7</td><td>12</td></tr>
+<tr><td>3, 5, 2</td><td>0, 3, 8</td><td>11</td></tr>
+<tr><td>3, 2, 5</td><td>0, 3, 5</td><td>8</td></tr>
+<tr><td>2, 5, 3</td><td>0, 2, 7</td><td>9</td></tr>
+<tr><td>2, 3, 5</td><td>0, 2, 5</td><td class="i">7</td></tr>
+</table></div>
+<p>Thứ tự tốt nhất là <b>người cần ít thời gian đứng trước</b>. Tuy nhiên với <code>n = 10<sup>5</sup></code> thì không thể thử mọi thứ tự (<code>n!</code> cách). Ta cần <b>chứng minh</b> quy tắc "ít thời gian trước" luôn đúng.</p>
+<h3>Chứng minh bằng lập luận đổi chỗ</h3>
+<p>Thời gian chờ của một người bằng tổng thời gian phục vụ của <b>những người đứng trước</b> họ. Vì vậy mỗi <code>t<sub>i</sub></code> được tính <b>một lần cho mỗi người đứng sau</b> <code>i</code>:</p>
+<div class="box"><b>Tổng chờ = Σ t<sub>i</sub> × (số người đứng sau i)</b>. Ví dụ thứ tự 2, 3, 5: <code>2×2 + 3×1 + 5×0 = 7</code> ✔</div>
+<p>Giả sử có hai người <b>đứng kề nhau</b>, người trước cần <code>a</code>, người sau cần <code>b</code>, và <code>a &gt; b</code>. Nếu <b>đổi chỗ</b> hai người này:</p>
+<ul>
+<li>Những người đứng trước cặp này, và những người đứng sau cặp này, <b>không bị ảnh hưởng</b> (tổng thời gian của hai người không đổi).</li>
+<li>Trong cặp: trước khi đổi, người sau phải chờ thêm <code>a</code>; sau khi đổi, người (mới) đứng sau chờ thêm <code>b</code>. Vì <code>b &lt; a</code> nên tổng chờ <b>giảm</b>.</li>
+</ul>
+<p>Vậy trong thứ tự tối ưu <b>không thể có cặp kề nhau mà người trước cần nhiều hơn người sau</b> (vì đổi chỗ sẽ tốt hơn). Hay nói cách khác thứ tự tối ưu phải <b>không giảm</b>: sắp xếp tăng dần là tối ưu.</p>
+<h3>Cài đặt</h3>
+<pre><code>sort(t.begin(), t.end());                 <span class="c">// tăng dần</span>
+<span class="k">long long</span> wait = 0, total = 0;
+<span class="k">for</span> (<span class="k">long long</span> x : t) {
+    total += wait;                        <span class="c">// người này chờ "wait" phút</span>
+    wait += x;                            <span class="c">// người sau phải chờ thêm x</span>
+}
+cout &lt;&lt; total;</code></pre>
+<p><b>Chạy thử</b> <code>5 3 2</code> → sắp xếp <code>2 3 5</code>: người 1 chờ 0 (<code>wait = 2</code>); người 2 chờ 2 (<code>wait = 5</code>); người 3 chờ 5 (<code>wait = 10</code>). Tổng <code>0 + 2 + 5 = 7</code> ✔ Độ phức tạp <code>O(n log n)</code> do sắp xếp. Tổng có thể rất lớn (khoảng <code>n²</code> nhân giá trị), cần <code>long long</code>.</p>
+</section>
+
+<section id="buoc">
+<h2>4. Ba bước giải một bài tham lam</h2>
+<div class="tbl"><table>
+<tr><th>Bước</th><th>Việc cần làm</th><th>Trong bài mẫu</th></tr>
+<tr><td><b>1. Tiêu chí</b></td><td class="l">Mỗi bước chọn gì trước? (thường là một cách sắp xếp)</td><td class="l">Người cần ít thời gian nhất</td></tr>
+<tr><td><b>2. Chứng minh</b></td><td class="l">Vì sao chọn vậy không mất đáp án tối ưu? Hai cách hay dùng: <b>đổi chỗ</b> (như trên), hoặc <b>phản ví dụ</b> để loại tiêu chí sai</td><td class="l">Đổi chỗ cặp kề nhau làm tổng chờ giảm</td></tr>
+<tr><td><b>3. Cài đặt</b></td><td class="l">Thường là <code>sort</code> theo tiêu chí rồi duyệt một lượt</td><td class="l"><code>sort</code> rồi cộng dồn</td></tr>
+</table></div>
+<div class="box">💡 <b>Tham lam và quy hoạch động:</b> DP <b>thử mọi lựa chọn</b> rồi ghi nhớ kết quả; tham lam chỉ chọn <b>một</b> lựa chọn tại mỗi bước. Tham lam nhanh hơn nhiều nhưng chỉ đúng khi bài toán có tính chất phù hợp. Khi không chứng minh được, hãy thử viết cách vét cạn hoặc DP cho dữ liệu nhỏ rồi so sánh với tham lam để tìm phản ví dụ.</div>
+</section>
+
+<section id="bai-tap">
+<h2>5. Bài tập nâng dần</h2>
+<p>Với mỗi bài hãy tự trả lời: <i>"tiêu chí tham lam là gì? Vì sao nó đúng (hoặc phản ví dụ nào cho thấy tiêu chí khác sai)?"</i></p>
+
+<div class="bt"><h3>Bài 1. Mua được nhiều món nhất <span class="lv">(cơ bản)</span></h3>
+<p>Có <code>n</code> món hàng giá <code>a<sub>i</sub></code> và số tiền <code>S</code>. Mỗi món mua tối đa một lần. Mua được nhiều món nhất là bao nhiêu?<br><i>Ví dụ:</i> giá <code>5 2 8 1</code>, <code>S = 9</code> → <code>3</code> (mua các món giá 1, 2, 5)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> muốn nhiều món thì mua món <b>rẻ nhất trước</b>. Chứng minh ngắn: nếu một cách mua có món đắt hơn trong khi còn món rẻ hơn chưa mua, đổi món đắt thành món rẻ vẫn mua được và còn dư tiền, không làm giảm số món.</p>
+<pre><code>sort(a.begin(), a.end());
+<span class="k">long long</span> sum = 0; <span class="k">int</span> cnt = 0;
+<span class="k">for</span> (<span class="k">long long</span> x : a) {
+    <span class="k">if</span> (sum + x &gt; S) <span class="k">break</span>;
+    sum += x; cnt++;
+}
+cout &lt;&lt; cnt;</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 2. Thuyền cứu hộ <span class="lv">(dễ, tham lam + hai con trỏ)</span></h3>
+<p>Có <code>n</code> người, người thứ <code>i</code> nặng <code>a<sub>i</sub></code>. Mỗi thuyền chở <b>tối đa 2 người</b> và tổng cân nặng không vượt quá <code>L</code> (mỗi người nặng không quá <code>L</code>). Tìm số thuyền ít nhất.<br><i>Ví dụ:</i> <code>3 2 2 1</code>, <code>L = 3</code> → <code>3</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> xét người <b>nặng nhất</b> còn lại. Nếu người nhẹ nhất ghép được với người đó thì ghép luôn: trong mọi cách chia tối ưu, đổi bạn cùng thuyền của người nặng nhất thành người nhẹ nhất vẫn hợp lệ (người nhẹ nhất nhẹ hơn mọi người khác) và không làm tăng số thuyền. Nếu không ghép được thì người nặng nhất đi một mình, vì không ai ghép được với họ. Sắp xếp rồi dùng hai con trỏ hai đầu.</p>
+<pre><code>sort(a.begin(), a.end());
+<span class="k">int</span> l = 0, r = n - 1, boats = 0;
+<span class="k">while</span> (l &lt;= r) {
+    <span class="k">if</span> (l &lt; r &amp;&amp; a[l] + a[r] &lt;= L) l++;   <span class="c">// ghép người nhẹ nhất với người nặng nhất</span>
+    r--;                                   <span class="c">// người nặng nhất lên thuyền</span>
+    boats++;
+}
+cout &lt;&lt; boats;</code></pre>
+<p><i>Chạy thử</i> <code>1 2 2 3</code>, <code>L=3</code>: <code>1+3 = 4 &gt; 3</code> → người 3 đi một mình (thuyền 1); <code>1+2 = 3</code> ghép (thuyền 2); còn người nặng 2 đi một mình (thuyền 3) → <b>3</b> ✔</p></div></details></div>
+
+<div class="bt"><h3>Bài 3. Cái túi lấy được một phần <span class="lv">(trung bình)</span></h3>
+<p>Có <code>n</code> món, món <code>i</code> nặng <code>w<sub>i</sub></code>, giá trị <code>v<sub>i</sub></code>; túi chứa tối đa <code>W</code>. Khác bài cái túi 0/1: được lấy <b>một phần</b> món đồ (giá trị tỉ lệ với khối lượng lấy). Tìm tổng giá trị lớn nhất.<br><i>Ví dụ:</i> <code>W = 50</code>, các món <code>(w,v) = (10,60), (20,100), (30,120)</code> → <code>240</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> mỗi kg trong túi nên "đáng giá" nhất có thể, nên lấy món có <b>giá trị trên mỗi đơn vị khối lượng</b> (<code>v/w</code>) cao nhất trước. Lấy trọn món đó nếu còn chỗ, nếu không thì lấy phần vừa đủ. Để tránh số thực khi so sánh, so sánh <code>v₁/w₁ &gt; v₂/w₂</code> bằng <code>v₁·w₂ &gt; v₂·w₁</code>.</p>
+<pre><code>sort(items.begin(), items.end(), [](<span class="k">const</span> pair&lt;<span class="k">int</span>,<span class="k">int</span>&gt; &amp;x, <span class="k">const</span> pair&lt;<span class="k">int</span>,<span class="k">int</span>&gt; &amp;y) {
+    <span class="k">return</span> (<span class="k">long long</span>)x.second * y.first &gt; (<span class="k">long long</span>)y.second * x.first;   <span class="c">// (w, v)</span>
+});
+<span class="k">double</span> total = 0; <span class="k">int</span> room = W;
+<span class="k">for</span> (<span class="k">auto</span> &amp;it : items) {
+    <span class="k">if</span> (room == 0) <span class="k">break</span>;
+    <span class="k">int</span> take = min(room, it.first);
+    total += (<span class="k">double</span>)it.second * take / it.first;
+    room -= take;
+}
+cout &lt;&lt; total;</code></pre>
+<p><i>Chạy thử:</i> tỉ lệ <code>6, 5, 4</code>. Lấy trọn món 1 (10 kg, 60) và món 2 (20 kg, 100), còn 20 kg lấy từ món 3 một phần <code>120 × 20/30 = 80</code>. Tổng <code>60 + 100 + 80 = 240</code> ✔</p>
+<p><b>So sánh với cái túi 0/1:</b> với đúng bộ dữ liệu này nhưng chỉ được lấy trọn món, tham lam theo tỉ lệ chọn món 1 và 2 (giá trị 160, còn 20 kg không vừa món 3), trong khi tối ưu là món 2 và 3 (giá trị 220). Vì vậy 0/1 phải dùng quy hoạch động còn bản "lấy một phần" dùng tham lam.</p></div></details></div>
+
+<div class="bt"><h3>Bài 4. Số phòng họp ít nhất <span class="lv">(khá)</span></h3>
+<p>Có <code>n</code> cuộc họp, cuộc họp <code>i</code> diễn ra trong <code>[s<sub>i</sub>, e<sub>i</sub>)</code> (kết thúc đúng lúc <code>e</code> thì phòng được dùng lại ngay từ <code>e</code>). Tìm số phòng ít nhất để xếp mọi cuộc họp, hai cuộc họp trùng giờ không được chung phòng.<br><i>Ví dụ:</i> <code>(0,30), (5,10), (15,20)</code> → <code>2</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> sắp xếp <b>riêng</b> các thời điểm bắt đầu và các thời điểm kết thúc. Duyệt các cuộc họp theo thứ tự bắt đầu: nếu cuộc họp bắt đầu <b>không sớm hơn</b> thời điểm kết thúc sớm nhất còn chưa dùng lại, thì tái sử dụng phòng đó (chỉ cần dịch con trỏ kết thúc); ngược lại phải mở phòng mới.</p>
+<pre><code>sort(st.begin(), st.end());
+sort(en.begin(), en.end());
+<span class="k">int</span> rooms = 0, j = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+    <span class="k">if</span> (st[i] &gt;= en[j]) j++;     <span class="c">// một phòng đã trống: dùng lại</span>
+    <span class="k">else</span> rooms++;                 <span class="c">// không có phòng trống: mở thêm</span>
+}
+cout &lt;&lt; rooms;</code></pre>
+<p><i>Chạy thử:</i> <code>st = 0,5,15</code>, <code>en = 10,20,30</code>. <code>s=0</code>: <code>0 ≥ 10</code>? không → <code>rooms=1</code>. <code>s=5</code>: <code>5 ≥ 10</code>? không → <code>rooms=2</code>. <code>s=15</code>: <code>15 ≥ 10</code> → dùng lại (<code>j=1</code>). Kết quả <b>2</b> ✔ Đây cũng chính là số cuộc họp chồng nhau nhiều nhất cùng lúc (như bài đông khách nhất ở chuyên đề Mảng hiệu).</p></div></details></div>
+
+<div class="bt"><h3>Bài 5. Làm việc có hạn chót <span class="lv">(khá)</span></h3>
+<p>Có <code>n</code> công việc, mỗi việc mất đúng <b>1 đơn vị thời gian</b>, có hạn chót <code>d<sub>i</sub></code> (phải làm xong trong các đơn vị thời gian <code>1…d<sub>i</sub></code>) và lợi nhuận <code>p<sub>i</sub></code>. Mỗi đơn vị thời gian làm tối đa một việc. Chọn việc để tổng lợi nhuận lớn nhất (<code>n ≤ 1000</code>).<br><i>Ví dụ:</i> <code>(d,p) = (2,100), (1,19), (2,27), (1,25), (3,15)</code> → <code>142</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> xét các việc theo <b>lợi nhuận giảm dần</b>. Với mỗi việc, xếp nó vào <b>ô thời gian trống muộn nhất</b> không quá hạn chót của nó (để các ô sớm hơn còn trống cho việc có hạn chót gấp). Không có ô trống thì bỏ việc đó.</p>
+<pre><code>sort(jobs.begin(), jobs.end(), [](<span class="k">auto</span> &amp;x, <span class="k">auto</span> &amp;y) { <span class="k">return</span> x.second &gt; y.second; });   <span class="c">// (d, p)</span>
+vector&lt;<span class="k">bool</span>&gt; used(n + 1, <span class="k">false</span>);
+<span class="k">long long</span> total = 0;
+<span class="k">for</span> (<span class="k">auto</span> &amp;j : jobs) {
+    <span class="k">for</span> (<span class="k">int</span> t = min(j.first, n); t &gt;= 1; t--)
+        <span class="k">if</span> (!used[t]) { used[t] = <span class="k">true</span>; total += j.second; <span class="k">break</span>; }
+}
+cout &lt;&lt; total;</code></pre>
+<p><i>Chạy thử:</i> theo lợi nhuận giảm: <code>100</code> (d=2) vào ô 2; <code>27</code> (d=2) ô 2 đã dùng nên vào ô 1; <code>25</code> (d=1) và <code>19</code> (d=1) đều hết chỗ nên bỏ; <code>15</code> (d=3) vào ô 3. Tổng <code>100 + 27 + 15 = 142</code> ✔ Độ phức tạp <code>O(n²)</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Ghép các số thành số lớn nhất <span class="lv">(khó, tự thiết kế tiêu chí)</span></h3>
+<p>Cho <code>n</code> số nguyên không âm. Hãy <b>nối</b> chúng lại theo một thứ tự tùy ý (viết liền các chữ số) để được một số <b>lớn nhất</b>. In số đó dưới dạng xâu.<br><i>Ví dụ:</i> <code>3 30 34 5 9</code> → <code>9534330</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> thử các tiêu chí "hiển nhiên": sắp giảm dần theo giá trị cho <code>9 5 34 30 3</code> → <code>9534303</code>, nhỏ hơn đáp án (<code>9534330</code>). Sắp theo thứ tự từ điển giảm dần cũng cho <code>9534303</code>, vì xâu <code>"30"</code> đứng trước <code>"3"</code>. Cần một tiêu chí đúng bản chất: <b>số <code>a</code> đứng trước số <code>b</code> nếu nối <code>a</code> rồi <code>b</code> cho kết quả lớn hơn nối <code>b</code> rồi <code>a</code></b>, tức xâu <code>a+b &gt; b+a</code>.</p>
+<p>Ví dụ <code>3</code> và <code>30</code>: <code>"330"</code> so với <code>"303"</code> → <code>3</code> đứng trước. <code>34</code> và <code>3</code>: <code>"343"</code> so với <code>"334"</code> → <code>34</code> đứng trước. Có thể chứng minh bằng lập luận đổi chỗ như ở bài mẫu: hai số kề nhau nối theo thứ tự nào lớn hơn thì giữ nguyên thứ tự đó.</p>
+<pre><code>vector&lt;string&gt; s(n);
+<span class="k">for</span> (<span class="k">auto</span> &amp;x : s) cin &gt;&gt; x;
+sort(s.begin(), s.end(), [](<span class="k">const</span> string &amp;a, <span class="k">const</span> string &amp;b) {
+    <span class="k">return</span> a + b &gt; b + a;
+});
+string res;
+<span class="k">for</span> (<span class="k">auto</span> &amp;x : s) res += x;
+<span class="k">if</span> (res[0] == '0') res = "0";           <span class="c">// toàn số 0</span>
+cout &lt;&lt; res;</code></pre>
+<p><i>Chạy thử:</i> thứ tự <code>9, 5, 34, 3, 30</code> → <code>9534330</code> ✔ Bài này cho thấy phần khó của tham lam nằm ở <b>tìm đúng tiêu chí</b>, còn cài đặt chỉ là <code>sort</code> với hàm so sánh tùy chỉnh.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>6. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Tham lam không phải lúc nào cũng đúng:</b> luôn kiểm tra bằng ví dụ nhỏ (và nếu có thể so với vét cạn hoặc DP) trước khi tin tiêu chí của mình.</div>
+<div class="box w"><b>Nhầm tiêu chí:</b> "lớn nhất trước" hay "nhỏ nhất trước", "sớm kết thúc" hay "sớm bắt đầu" quyết định đúng sai. Mỗi bài có một tiêu chí riêng, cần lập luận.</div>
+<div class="box w"><b>Hàm so sánh sai:</b> khi tiêu chí là một biểu thức (như bài 6), nhớ dùng <code>&gt;</code> hoặc <code>&lt;</code>, không dùng <code>&gt;=</code>/<code>&lt;=</code>.</div>
+<div class="box w"><b>Số thực khi so sánh:</b> tránh chia (ví dụ <code>v/w</code>); đổi thành tích chéo bằng số nguyên như bài 3.</div>
+<div class="box w"><b>Tràn số:</b> tổng thời gian chờ, tích chéo có thể vượt <code>int</code>; dùng <code>long long</code>.</div>
+<div class="box"><b>Tóm tắt:</b> tham lam = mỗi bước chọn lựa chọn tốt nhất theo một tiêu chí, không quay lại. Ba bước: <b>tiêu chí → chứng minh (đổi chỗ / phản ví dụ) → cài đặt (thường <code>sort</code> rồi duyệt)</b>. Cùng một đề, dữ liệu khác có thể làm tham lam sai (đổi tiền <code>1,3,4</code>, cái túi 0/1), khi đó quay lại quy hoạch động.<br><b>Hướng đi tiếp theo:</b> quy hoạch động nâng cao, đồ thị cơ bản (BFS, DFS), hoặc một trang ôn tập giúp học sinh nhận dạng dùng kỹ thuật nào.</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

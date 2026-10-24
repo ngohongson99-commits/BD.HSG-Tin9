@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quy hoạch động cơ bản trong C++</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;--out:#ffd2d2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+td.o{background:var(--out)}
+td.l{text-align:left}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>🧩 Quy hoạch động cơ bản</h1>
+<p>Chia bài toán thành các bài toán con, giải mỗi bài con đúng một lần và nhớ lại kết quả</p>
+</header>
+<nav>
+<a href="#bt">1. Bài toán mở đầu</a><a href="#y">2. Ý tưởng</a><a href="#code">3. Cài đặt</a><a href="#m2">4. Bài mẫu thứ hai</a><a href="#bai-tap">5. Bài tập</a><a href="#luu">6. Lưu ý</a>
+</nav>
+<main>
+
+<section id="bt">
+<h2>1. Bài toán mở đầu: leo cầu thang</h2>
+<div class="box"><b>Đề bài.</b> Một cầu thang có <code>n</code> bậc. Mỗi lần bạn bước <b>1 bậc hoặc 2 bậc</b>. Hỏi có bao nhiêu cách khác nhau để đi từ mặt đất (bậc 0) lên bậc <code>n</code>?<br><b>Giới hạn:</b> <code>1 ≤ n ≤ 90</code>.</div>
+<p><b>Ví dụ:</b> <code>n = 3</code> → <code>3</code> cách: <code>1+1+1</code>, <code>1+2</code>, <code>2+1</code>.</p>
+<h3>Tư duy đệ quy</h3>
+<p>Gọi <code>f(n)</code> là số cách lên bậc <code>n</code>. Bước <b>cuối cùng</b> để đến bậc <code>n</code> chỉ có hai khả năng: đến từ bậc <code>n−1</code> (bước 1) hoặc từ bậc <code>n−2</code> (bước 2). Hai nhóm cách này không trùng nhau, nên <b><code>f(n) = f(n−1) + f(n−2)</code></b>. Ngoài ra <code>f(0) = f(1) = 1</code> (đứng yên, hoặc chỉ có một cách lên bậc 1).</p>
+<pre><code><span class="k">long long</span> f(<span class="k">int</span> n) {
+    <span class="k">if</span> (n &lt;= 1) <span class="k">return</span> 1;
+    <span class="k">return</span> f(n - 1) + f(n - 2);
+}</code></pre>
+<p>Đúng, nhưng với <code>n = 50</code> chương trình phải gọi hàm hàng chục tỷ lần: quá chậm. <b>Vì sao?</b> Hãy đếm số lần mỗi giá trị bị tính khi gọi <code>f(5)</code>:</p>
+<div class="tbl"><table>
+<tr><th>Giá trị cần tính</th><td>f(5)</td><td>f(4)</td><td>f(3)</td><td>f(2)</td><td>f(1)</td><td>f(0)</td></tr>
+<tr><th>Số lần bị tính</th><td>1</td><td>1</td><td>2</td><td class="o">3</td><td class="o">5</td><td>3</td></tr>
+</table></div>
+<p>Cùng một bài toán con (như <code>f(2)</code>) bị giải đi giải lại nhiều lần, và số lần tăng gần như gấp đôi mỗi khi <code>n</code> tăng thêm 1.</p>
+<div class="box w">❓ <b>Câu hỏi:</b> mỗi bài toán con đã biết đáp án sau lần tính đầu tiên. Sao không <b>ghi nhớ</b> đáp án đó lại để lần sau chỉ việc lấy ra?</div>
+</section>
+
+<section id="y">
+<h2>2. Ý tưởng: ghi nhớ kết quả của các bài toán con</h2>
+<p><b>Quy hoạch động</b> (Dynamic Programming, viết tắt DP) là kỹ thuật: chia bài toán lớn thành các bài toán con <b>giống nhau về dạng</b>, giải <b>mỗi bài toán con đúng một lần</b>, lưu kết quả vào một mảng và dùng lại. Muốn làm được, trả lời bốn câu hỏi:</p>
+<div class="tbl"><table>
+<tr><th>Bước</th><th>Câu hỏi</th><th>Với bài leo cầu thang</th></tr>
+<tr><td><b>1. Trạng thái</b></td><td class="l"><code>dp[i]</code> đại diện cho điều gì?</td><td class="l"><code>dp[i]</code> = số cách lên bậc <code>i</code></td></tr>
+<tr><td><b>2. Công thức truy hồi</b></td><td class="l"><code>dp[i]</code> tính từ các trạng thái nhỏ hơn thế nào?</td><td class="l"><code>dp[i] = dp[i−1] + dp[i−2]</code></td></tr>
+<tr><td><b>3. Giá trị ban đầu</b></td><td class="l">Những trạng thái nhỏ nhất bằng bao nhiêu?</td><td class="l"><code>dp[0] = 1</code>, <code>dp[1] = 1</code></td></tr>
+<tr><td><b>4. Thứ tự và đáp án</b></td><td class="l">Tính theo thứ tự nào? Đáp án là ô nào?</td><td class="l"><code>i</code> tăng dần; đáp án <code>dp[n]</code></td></tr>
+</table></div>
+<p><b>Chạy thử</b> với <code>n = 5</code> (mỗi ô là tổng hai ô liền trước):</p>
+<div class="tbl"><table>
+<tr><th>i</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+<tr><th>dp[i]</th><td>1</td><td>1</td><td>1+1 = 2</td><td>2+1 = 3</td><td>3+2 = 5</td><td class="i">5+3 = 8</td></tr>
+</table></div>
+<p>Kiểm tra <code>dp[3] = 3</code>: đúng bằng ba cách <code>1+1+1</code>, <code>1+2</code>, <code>2+1</code> ở ví dụ. Mỗi ô chỉ tính một lần, tổng cộng <b>O(n)</b> thay vì mấy chục tỷ.</p>
+<div class="box">💡 <b>Hai cách cài đặt:</b> <b>dưới lên</b> (bottom-up) tính <code>dp[0], dp[1], …</code> theo thứ tự bằng vòng lặp (cách chính ở trang này). <b>Trên xuống</b> (top-down, "đệ quy có nhớ") giữ hàm đệ quy nhưng thêm mảng ghi nhớ: <code>if (memo[n] != -1) return memo[n];</code> rồi <code>return memo[n] = f(n-1) + f(n-2);</code>. Hai cách cho cùng kết quả và cùng độ phức tạp.</div>
+</section>
+
+<section id="code">
+<h2>3. Cài đặt</h2>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">int</span> main() {
+    <span class="k">int</span> n; cin &gt;&gt; n;
+    vector&lt;<span class="k">long long</span>&gt; dp(max(n + 1, 2));
+    dp[0] = dp[1] = 1;                          <span class="c">// bước 3: giá trị ban đầu</span>
+    <span class="k">for</span> (<span class="k">int</span> i = 2; i &lt;= n; i++)                <span class="c">// bước 4: tăng dần</span>
+        dp[i] = dp[i - 1] + dp[i - 2];          <span class="c">// bước 2: công thức</span>
+    cout &lt;&lt; dp[n];
+}</code></pre>
+<p>Với <code>n = 90</code>, đáp án khoảng <code>4,6 × 10<sup>18</sup></code>: vừa trong <code>long long</code> (tối đa khoảng 9,2 × 10<sup>18</sup>). Nếu <code>n</code> lớn hơn, đề thường yêu cầu "chia lấy dư cho 10<sup>9</sup>+7": khi đó lấy <code>% MOD</code> sau mỗi phép cộng.</p>
+<div class="box">💡 Mỗi <code>dp[i]</code> chỉ dùng hai ô liền trước, nên có thể thay cả mảng bằng hai biến (tiết kiệm bộ nhớ). Với học sinh mới, hãy giữ mảng để dễ kiểm tra từng bước.</div>
+</section>
+
+<section id="m2">
+<h2>4. Bài mẫu thứ hai: chọn không kề nhau</h2>
+<div class="box"><b>Đề bài.</b> Cho <code>n</code> số không âm <code>a<sub>1</sub>…a<sub>n</sub></code> xếp thành một hàng. Chọn một số phần tử sao cho <b>không có hai phần tử kề nhau cùng được chọn</b>, để tổng được chọn lớn nhất.<br><i>Ví dụ:</i> <code>3 2 7 10</code> → <code>13</code> (chọn <code>3</code> và <code>10</code>)</div>
+<p><b>Trạng thái:</b> <code>dp[i]</code> = tổng lớn nhất khi chỉ xét <code>i</code> phần tử đầu. Với phần tử thứ <code>i</code> có <b>hai lựa chọn</b>:</p>
+<ul>
+<li><b>Không chọn</b> <code>a[i]</code>: tổng tốt nhất là <code>dp[i−1]</code>.</li>
+<li><b>Chọn</b> <code>a[i]</code>: không được chọn <code>a[i−1]</code>, nên được <code>dp[i−2] + a[i]</code>.</li>
+</ul>
+<p>Lấy cách tốt hơn: <b><code>dp[i] = max(dp[i−1], dp[i−2] + a[i])</code></b>, với <code>dp[0] = 0</code>, <code>dp[1] = a[1]</code>. Đáp án <code>dp[n]</code>.</p>
+<pre><code>vector&lt;<span class="k">long long</span>&gt; dp(n + 1, 0);
+dp[1] = a[1];
+<span class="k">for</span> (<span class="k">int</span> i = 2; i &lt;= n; i++)
+    dp[i] = max(dp[i - 1], dp[i - 2] + a[i]);
+cout &lt;&lt; dp[n];</code></pre>
+<div class="tbl"><table>
+<tr><th>i</th><th>a[i]</th><th>Không chọn: dp[i−1]</th><th>Chọn: dp[i−2] + a[i]</th><th>dp[i]</th></tr>
+<tr><td>1</td><td>3</td><td>–</td><td>–</td><td>3</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>0 + 2 = 2</td><td>3</td></tr>
+<tr><td>3</td><td>7</td><td>3</td><td>3 + 7 = 10</td><td>10</td></tr>
+<tr><td>4</td><td>10</td><td>10</td><td>3 + 10 = 13</td><td class="i">13</td></tr>
+</table></div>
+<p>Đây là mô hình DP thứ hai rất hay gặp: tại mỗi bước có <b>nhiều lựa chọn</b>, ta lấy <code>max</code> hoặc <code>min</code> trên các lựa chọn, mỗi lựa chọn dựa vào trạng thái nhỏ hơn đã tính.</p>
+</section>
+
+<section id="bai-tap">
+<h2>5. Bài tập nâng dần</h2>
+<p>Với mỗi bài hãy tự trả lời bốn câu hỏi ở mục 2: <i>trạng thái là gì, công thức truy hồi, giá trị ban đầu, thứ tự tính và đáp án?</i></p>
+
+<div class="bt"><h3>Bài 1. Leo cầu thang bước 1, 2 hoặc 3 bậc <span class="lv">(cơ bản)</span></h3>
+<p>Như bài mẫu, nhưng mỗi lần được bước <b>1, 2 hoặc 3</b> bậc. Với <code>n ≤ 60</code>, in số cách.<br><i>Ví dụ:</i> <code>n = 4</code> → <code>7</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> bước cuối có ba khả năng (từ <code>i−1</code>, <code>i−2</code> hoặc <code>i−3</code>), nên <code>dp[i] = dp[i−1] + dp[i−2] + dp[i−3]</code>. Khởi tạo <code>dp[0] = 1</code>, <code>dp[1] = 1</code>, <code>dp[2] = 2</code>; với <code>i ≥ 3</code> áp dụng công thức.</p>
+<pre><code>vector&lt;<span class="k">long long</span>&gt; dp(max(n + 1, 3));
+dp[0] = 1; dp[1] = 1; dp[2] = 2;
+<span class="k">for</span> (<span class="k">int</span> i = 3; i &lt;= n; i++) dp[i] = dp[i - 1] + dp[i - 2] + dp[i - 3];
+cout &lt;&lt; dp[n];</code></pre>
+<p><i>Kiểm tra:</i> <code>dp = 1, 1, 2, 4, 7</code> nên <code>dp[4] = 4 + 2 + 1 = 7</code> ✔</p></div></details></div>
+
+<div class="bt"><h3>Bài 2. Ếch nhảy <span class="lv">(dễ)</span></h3>
+<p>Có <code>n</code> cột đá, cột thứ <code>i</code> cao <code>h<sub>i</sub></code>. Ếch đứng ở cột 1 và muốn đến cột <code>n</code>. Mỗi lần ếch nhảy từ cột <code>i</code> sang cột <code>i+1</code> hoặc <code>i+2</code>, tốn năng lượng <code>|h<sub>i</sub> − h<sub>j</sub>|</code>. Tìm tổng năng lượng nhỏ nhất.<br><i>Ví dụ:</i> <code>10 30 40 20</code> → <code>30</code> (đường <code>1 → 2 → 4</code>: 20 + 10)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> <code>dp[i]</code> = năng lượng nhỏ nhất để đến cột <code>i</code>. Cột <code>i</code> đến từ cột <code>i−1</code> hoặc <code>i−2</code>; lấy cách rẻ hơn: <code>dp[i] = min(dp[i−1] + |h[i]−h[i−1]|, dp[i−2] + |h[i]−h[i−2]|)</code>. Khởi tạo <code>dp[1] = 0</code>, <code>dp[2] = |h[2]−h[1]|</code>.</p>
+<pre><code>vector&lt;<span class="k">long long</span>&gt; dp(n + 1, 0);
+<span class="k">if</span> (n &gt;= 2) dp[2] = llabs(h[2] - h[1]);
+<span class="k">for</span> (<span class="k">int</span> i = 3; i &lt;= n; i++)
+    dp[i] = min(dp[i - 1] + llabs(h[i] - h[i - 1]),
+                dp[i - 2] + llabs(h[i] - h[i - 2]));
+cout &lt;&lt; dp[n];</code></pre>
+<p><i>Chạy thử:</i> <code>dp[2]=20</code>; <code>dp[3]=min(20+10, 0+30)=30</code>; <code>dp[4]=min(30+20, 20+10)=30</code> ✔</p></div></details></div>
+
+<div class="bt"><h3>Bài 3. Đoạn con liên tiếp có tổng lớn nhất <span class="lv">(trung bình)</span></h3>
+<p>Cho <code>n</code> số nguyên (có thể âm). Tìm tổng lớn nhất của một đoạn liên tiếp <b>không rỗng</b>.<br><i>Ví dụ:</i> <code>-2 1 -3 4 -1 2 1 -5 4</code> → <code>6</code> (đoạn <code>4 -1 2 1</code>)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> bài này bạn đã giải bằng mảng cộng dồn. Nhìn bằng DP: <code>dp[i]</code> = tổng lớn nhất của đoạn <b>kết thúc đúng tại <code>i</code></b>. Đoạn đó hoặc chỉ gồm <code>a[i]</code>, hoặc nối thêm vào đoạn tốt nhất kết thúc tại <code>i−1</code>: <code>dp[i] = max(a[i], dp[i−1] + a[i])</code>. Đáp án là <code>max</code> của mọi <code>dp[i]</code> (đoạn tốt nhất kết thúc ở đâu đó).</p>
+<pre><code><span class="k">long long</span> cur = a[0], best = a[0];
+<span class="k">for</span> (<span class="k">int</span> i = 1; i &lt; n; i++) {
+    cur = max(a[i], cur + a[i]);     <span class="c">// cur chính là dp[i]</span>
+    best = max(best, cur);
+}
+cout &lt;&lt; best;</code></pre>
+<p>Chỉ cần một biến <code>cur</code> thay cho cả mảng vì <code>dp[i]</code> chỉ dùng <code>dp[i−1]</code>. Đây chính là thuật toán Kadane đã nhắc ở chuyên đề Mảng cộng dồn.</p></div></details></div>
+
+<div class="bt"><h3>Bài 4. Dãy con tăng dài nhất <span class="lv">(khá)</span></h3>
+<p>Cho <code>n</code> số (<code>n ≤ 1000</code>). Một <b>dãy con</b> gồm các phần tử giữ nguyên thứ tự nhưng <b>không nhất thiết liền nhau</b>. Tìm độ dài lớn nhất của một dãy con <b>tăng chặt</b>.<br><i>Ví dụ:</i> <code>10 9 2 5 3 7 101 18</code> → <code>4</code> (ví dụ <code>2 3 7 18</code>)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> <code>dp[i]</code> = độ dài dãy con tăng dài nhất <b>kết thúc đúng tại <code>a[i]</code></b>. Phần tử đứng ngay trước <code>a[i]</code> trong dãy con là một <code>a[j]</code> nào đó với <code>j &lt; i</code> và <code>a[j] &lt; a[i]</code>; thử mọi <code>j</code> như vậy và lấy tốt nhất: <code>dp[i] = 1 + max dp[j]</code> (hoặc <code>1</code> nếu không có <code>j</code>). Đáp án là <code>max</code> của mọi <code>dp[i]</code>.</p>
+<pre><code>vector&lt;<span class="k">int</span>&gt; dp(n, 1);
+<span class="k">int</span> ans = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+    <span class="k">for</span> (<span class="k">int</span> j = 0; j &lt; i; j++)
+        <span class="k">if</span> (a[j] &lt; a[i]) dp[i] = max(dp[i], dp[j] + 1);
+    ans = max(ans, dp[i]);
+}
+cout &lt;&lt; ans;</code></pre>
+<p><i>Chạy thử:</i> <code>dp = 1, 1, 1, 2, 2, 3, 4, 4</code> → đáp án <b>4</b> ✔ Độ phức tạp <code>O(n²)</code> (có cách <code>O(n log n)</code> dùng nhị phân, để dành cho chuyên đề nâng cao).</p></div></details></div>
+
+<div class="bt"><h3>Bài 5. Đổi tiền ít tờ nhất <span class="lv">(khá)</span></h3>
+<p>Có <code>k</code> loại tờ tiền với mệnh giá <code>c<sub>1</sub>…c<sub>k</sub></code> (mỗi loại có <b>vô hạn</b> tờ). Đổi đúng số tiền <code>S</code> (<code>S ≤ 10<sup>5</sup></code>) bằng <b>ít tờ nhất</b>; nếu không đổi được in <code>-1</code>.<br><i>Ví dụ:</i> mệnh giá <code>1 3 4</code>, <code>S = 6</code> → <code>2</code> (<code>3 + 3</code>)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> <code>dp[s]</code> = số tờ ít nhất để đổi đúng <code>s</code>. Tờ cuối cùng dùng có mệnh giá <code>c</code> nào đó (<code>c ≤ s</code>), phần còn lại <code>s − c</code> được đổi tối ưu bởi <code>dp[s−c]</code>; thử mọi <code>c</code> và lấy nhỏ nhất: <code>dp[s] = min(dp[s−c] + 1)</code>. Khởi tạo <code>dp[0] = 0</code> và các ô còn lại là "vô cực" (chưa đổi được).</p>
+<pre><code><span class="k">const int</span> INF = 1000000000;
+vector&lt;<span class="k">int</span>&gt; dp(S + 1, INF);
+dp[0] = 0;
+<span class="k">for</span> (<span class="k">int</span> s = 1; s &lt;= S; s++)
+    <span class="k">for</span> (<span class="k">int</span> c : coins)
+        <span class="k">if</span> (c &lt;= s &amp;&amp; dp[s - c] != INF)
+            dp[s] = min(dp[s], dp[s - c] + 1);
+cout &lt;&lt; (dp[S] == INF ? -1 : dp[S]);</code></pre>
+<p><i>Chạy thử</i> mệnh giá <code>1 3 4</code>: <code>dp = 0, 1, 2, 1, 1, 2, 2</code> nên <code>dp[6] = 2</code> ✔. Lưu ý: cách tham lam (luôn lấy tờ lớn nhất) cho <code>4 + 1 + 1</code> = 3 tờ, <b>không tối ưu</b>. Đây là ví dụ cho thấy khi tham lam sai thì DP giải quyết được. Độ phức tạp <code>O(S · k)</code>.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Cái túi 0/1 <span class="lv">(khó)</span></h3>
+<p>Có <code>n</code> món đồ, món <code>i</code> nặng <code>w<sub>i</sub></code>, giá trị <code>v<sub>i</sub></code>. Túi chứa tối đa khối lượng <code>W</code>. Mỗi món được <b>lấy tối đa một lần</b>. Tìm tổng giá trị lớn nhất (<code>n ≤ 100</code>, <code>W ≤ 10<sup>4</sup></code>).<br><i>Ví dụ:</i> <code>W = 5</code>, các món <code>(w,v) = (2,3), (3,4), (4,5)</code> → <code>7</code> (lấy món 1 và 2, nặng 5)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> <code>dp[j]</code> = tổng giá trị lớn nhất khi túi có sức chứa <code>j</code>. Xét lần lượt từng món. Với món có <code>(w, v)</code>: nếu lấy món này, ta được <code>dp[j − w] + v</code>, nếu không thì giữ <code>dp[j]</code>; chọn <code>max</code>.</p>
+<p><b>Điểm mấu chốt:</b> với mỗi món, duyệt <code>j</code> <b>từ lớn xuống nhỏ</b> (<code>W</code> về <code>w</code>). Khi đó <code>dp[j − w]</code> vẫn là giá trị <i>trước</i> khi thêm món này, nên mỗi món chỉ được tính một lần. Duyệt từ nhỏ lên lớn sẽ cho phép lấy cùng một món nhiều lần (thành bài toán khác).</p>
+<pre><code>vector&lt;<span class="k">int</span>&gt; dp(W + 1, 0);
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++)
+    <span class="k">for</span> (<span class="k">int</span> j = W; j &gt;= w[i]; j--)          <span class="c">// từ lớn xuống nhỏ!</span>
+        dp[j] = max(dp[j], dp[j - w[i]] + v[i]);
+cout &lt;&lt; dp[W];</code></pre>
+<p><i>Chạy thử</i> (<code>dp[0..5]</code>): ban đầu <code>0 0 0 0 0 0</code> → sau món <code>(2,3)</code>: <code>0 0 3 3 3 3</code> → sau món <code>(3,4)</code>: <code>0 0 3 4 4 7</code> → sau món <code>(4,5)</code>: <code>0 0 3 4 5 7</code>. Đáp án <code>dp[5] = 7</code> ✔ Độ phức tạp <code>O(n · W)</code>.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>6. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Nhận biết bài DP:</b> (1) bài toán chia được thành các bài toán con dạng giống nhau; (2) các bài toán con bị lặp lại (nếu không lặp thì đệ quy thường là đủ); (3) đáp án tối ưu được dựng từ đáp án tối ưu của bài con.</div>
+<div class="box w"><b>Quên giá trị ban đầu:</b> thiếu <code>dp[0]</code> hoặc <code>dp[1]</code> làm cả bảng sai. Khi tìm <code>min</code>, ô chưa tới được phải là "vô cực" chứ không phải <code>0</code>.</div>
+<div class="box w"><b>Sai thứ tự tính:</b> một ô chỉ được tính sau khi các ô nó phụ thuộc đã có giá trị. Hãy xác định rõ <code>i</code> tăng dần hay giảm dần (xem bài 6).</div>
+<div class="box w"><b>Dùng tham lam thay cho DP:</b> bài đổi tiền (bài 5) cho thấy chọn "tờ lớn nhất" có thể sai. Khi bài có nhiều lựa chọn và không chứng minh được tham lam, hãy thử DP.</div>
+<div class="box w"><b>Tràn số:</b> đếm số cách thường lớn rất nhanh; dùng <code>long long</code>, và lấy dư theo <code>MOD</code> nếu đề yêu cầu.</div>
+<div class="box w"><b>Sai kích thước mảng hoặc chỉ số:</b> <code>dp</code> cần <code>n + 1</code> ô nếu dùng chỉ số từ 0 đến <code>n</code>; cẩn thận khi <code>n</code> nhỏ (ví dụ <code>n = 1</code>).</div>
+<div class="box"><b>Tóm tắt:</b> DP = giải mỗi bài toán con một lần và nhớ lại. Bốn câu hỏi: <b>trạng thái</b> <code>dp[i]</code> là gì, <b>công thức truy hồi</b>, <b>giá trị ban đầu</b>, <b>thứ tự tính và đáp án</b>. Các mô hình đã gặp: đếm số cách (<code>+</code>), chọn tốt nhất trong các lựa chọn (<code>max</code>/<code>min</code>), kết thúc tại <code>i</code> (đoạn con, dãy con tăng), và cái túi.<br><b>Hướng đi tiếp theo:</b> các dạng DP khác (dãy con chung dài nhất, DP trên bảng, DP bitmask) và đồ thị.</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>

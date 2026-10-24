@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Đếm và tra cứu: mảng đếm, map, set, băm</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5d6570;--card:#fff;--bd:#e2e2dc;--ac:#0b6bcb;--code:#f3f4f1;--tip:#e8f3ff;--warn:#fff3e0;--hl:#ffe9a8;--in:#c8f0cf;--out:#ffd2d2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa3ad;--card:#1d2024;--bd:#30353b;--ac:#6cb2ff;--code:#101214;--tip:#17283a;--warn:#33291a;--hl:#5a4a14;--in:#1d4a2a;--out:#5a2323;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:32px 20px 20px;max-width:820px;margin:auto}
+h1{margin:0 0 6px;font-size:1.9rem}
+header p{margin:0;color:var(--mut)}
+nav{max-width:820px;margin:0 auto;padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px}
+nav a{font-size:.85rem;padding:4px 12px;border:1px solid var(--bd);border-radius:99px;color:var(--ac);text-decoration:none;background:var(--card)}
+main{max-width:820px;margin:auto;padding:0 20px 48px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px 20px;margin:18px 0}
+h2{margin:0 0 10px;font-size:1.3rem;color:var(--ac)}
+h3{margin:18px 0 6px;font-size:1.05rem}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:12px;overflow-x:auto;font:14px/1.5 ui-monospace,Consolas,Menlo,monospace;margin:8px 0}
+code{font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px;font-size:.92em}
+pre code{background:none;padding:0}
+.k{color:#b4308a}.c{color:#6a8a5a}
+.box{border-radius:8px;padding:10px 14px;margin:10px 0;background:var(--tip)}
+.box.w{background:var(--warn)}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem;text-align:center}
+th,td{border:1px solid var(--bd);padding:6px 10px}
+th{background:var(--code)}
+td.h{background:var(--hl);font-weight:600}
+td.i{background:var(--in);font-weight:600}
+td.o{background:var(--out)}
+td.l{text-align:left}
+.bt{border-top:1px dashed var(--bd);padding-top:6px}
+details{margin:8px 0 14px;border:1px solid var(--bd);border-radius:8px;background:var(--code)}
+summary{cursor:pointer;padding:8px 12px;font-weight:600;color:var(--ac)}
+details[open]>summary{border-bottom:1px solid var(--bd)}
+.sol{padding:4px 12px 8px}
+.sol pre{background:var(--card)}
+.lv{font-size:.78rem;color:var(--mut);font-weight:400}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding-bottom:30px}
+</style>
+</head>
+<body>
+<header>
+<h1>🗂️ Đếm và tra cứu</h1>
+<p>Từ mảng đếm đến <code>map</code>, <code>set</code> và băm: mỗi cấu trúc ra đời vì cấu trúc trước đó hết dùng được</p>
+</header>
+<nav>
+<a href="#b1">1. Bậc 1: mảng đếm</a><a href="#b2">2. Bậc 2: số âm</a><a href="#b3">3. Bậc 3: map</a><a href="#b4">4. Bậc 4: chuỗi</a><a href="#b5">5. Bậc 5: băm</a><a href="#set">6. set</a><a href="#chon">7. Chọn cấu trúc</a><a href="#bai-tap">8. Bài tập</a><a href="#luu">9. Lưu ý</a>
+</nav>
+<main>
+
+<section id="b1">
+<h2>1. Bài toán xuyên suốt và bậc 1: mảng đếm</h2>
+<div class="box"><b>Bài toán xuyên suốt.</b> Cho dãy <code>n</code> phần tử và <code>q</code> câu hỏi, mỗi câu cho một giá trị <code>x</code>: <b><code>x</code> xuất hiện bao nhiêu lần trong dãy?</b> (<code>n, q ≤ 10<sup>5</sup></code>). Ta sẽ <b>giữ nguyên đề</b> nhưng thay đổi dần "phần tử có thể là gì", và xem mỗi lần cần cấu trúc nào.</div>
+<div class="tbl"><table>
+<tr><th>Bậc</th><th>Phần tử là…</th><th>Cấu trúc</th></tr>
+<tr><td>1</td><td class="l">Số nguyên không âm, nhỏ</td><td><code>cnt[]</code> (mảng đếm)</td></tr>
+<tr><td>2</td><td class="l">Số nguyên có thể âm, khoảng hẹp</td><td><code>cnt[x + OFFSET]</code></td></tr>
+<tr><td>3</td><td class="l">Số nguyên rất lớn hoặc khoảng rộng</td><td><code>map</code></td></tr>
+<tr><td>4</td><td class="l">Ký tự, chuỗi</td><td><code>cnt[26]</code>, <code>map&lt;string,…&gt;</code></td></tr>
+<tr><td>5</td><td class="l">Cần nhanh hơn, không cần thứ tự</td><td><code>unordered_map</code> (băm)</td></tr>
+</table></div>
+
+<h3>Bậc 1: giá trị nằm trong 0 … 10<sup>6</sup></h3>
+<p>Dùng giá trị làm chỉ số: ô <code>cnt[v]</code> ghi số lần <code>v</code> xuất hiện (như chuyên đề Sắp xếp).</p>
+<pre><code><span class="k">const int</span> M = 1000000;
+vector&lt;<span class="k">int</span>&gt; cnt(M + 1, 0);
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) { <span class="k">int</span> v; cin &gt;&gt; v; cnt[v]++; }
+<span class="k">while</span> (q--) { <span class="k">int</span> x; cin &gt;&gt; x; cout &lt;&lt; cnt[x] &lt;&lt; "\n"; }</code></pre>
+<p>Tra cứu <b>O(1)</b>, rất nhanh. Cái giá là bộ nhớ: <code>M + 1</code> ô, bất kể dãy có bao nhiêu số. Điều kiện sống còn: <b>giá trị phải dùng được làm chỉ số</b> (nguyên, không âm, không quá lớn).</p>
+<div class="box w">❓ <b>Câu hỏi:</b> nếu đề đổi thành "phần tử có thể là số âm" thì <code>cnt[-5]</code> có chạy được không?</div>
+</section>
+
+<section id="b2">
+<h2>2. Bậc 2: có số âm → dịch chỉ số (offset)</h2>
+<p>Giả sử phần tử và <code>x</code> nằm trong <code>−10<sup>6</sup> … 10<sup>6</sup></code>. Chỉ số âm không tồn tại, nhưng ta chỉ cần <b>dịch</b> toàn bộ giá trị lên cho không âm: ánh xạ <code>v → v + OFFSET</code> với <code>OFFSET = 10<sup>6</sup></code>. Giá trị <code>−10<sup>6</sup></code> thành ô 0, giá trị 0 thành ô <code>10<sup>6</sup></code>, giá trị <code>10<sup>6</sup></code> thành ô <code>2·10<sup>6</sup></code>.</p>
+<pre><code><span class="k">const int</span> OFF = 1000000;
+vector&lt;<span class="k">int</span>&gt; cnt(2 * OFF + 1, 0);
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) { <span class="k">int</span> v; cin &gt;&gt; v; cnt[v + OFF]++; }
+<span class="k">while</span> (q--) {
+    <span class="k">int</span> x; cin &gt;&gt; x;
+    <span class="k">if</span> (x &lt; -OFF || x &gt; OFF) cout &lt;&lt; 0 &lt;&lt; "\n";   <span class="c">// ngoài phạm vi: chắc chắn 0</span>
+    <span class="k">else</span> cout &lt;&lt; cnt[x + OFF] &lt;&lt; "\n";
+}</code></pre>
+<div class="box">💡 Vẫn là mảng đếm, chỉ thêm một phép cộng. Học sinh nên thấy: <b>"số âm" không bắt buộc phải đổi cấu trúc</b>, miễn là khoảng giá trị đủ hẹp để cấp phát mảng. Nhớ kiểm tra truy vấn ngoài phạm vi.</div>
+</section>
+
+<section id="b3">
+<h2>3. Bậc 3: giá trị rất lớn → <code>map</code></h2>
+<p>Bây giờ phần tử nằm trong <code>−10<sup>9</sup> … 10<sup>9</sup></code> (khoảng 2·10<sup>9</sup> giá trị). Mảng đếm cần 2·10<sup>9</sup> ô, tức vài GB: <b>không thể</b>. Nhưng dãy chỉ có tối đa <code>n = 10<sup>5</sup></code> phần tử, tức <b>nhiều nhất 10<sup>5</sup> giá trị khác nhau</b> cần ghi nhớ. Ta chỉ cần cấu trúc <b>chỉ lưu những giá trị đã xuất hiện</b>: đó là <code>map</code>.</p>
+<p><code>map&lt;K, V&gt;</code> lưu các cặp <b>(khóa → giá trị)</b>, <b>sắp xếp theo khóa</b>. Ở đây khóa là phần tử, giá trị là số lần xuất hiện.</p>
+<pre><code>#include &lt;map&gt;
+map&lt;<span class="k">long long</span>, <span class="k">int</span>&gt; cnt;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) { <span class="k">long long</span> v; cin &gt;&gt; v; cnt[v]++; }
+<span class="k">while</span> (q--) {
+    <span class="k">long long</span> x; cin &gt;&gt; x;
+    <span class="k">auto</span> it = cnt.find(x);                          <span class="c">// tra cứu, không làm thay đổi map</span>
+    cout &lt;&lt; (it == cnt.end() ? 0 : it-&gt;second) &lt;&lt; "\n";
+}</code></pre>
+<p><b>Chạy thử</b> với dãy <code>-5 100000000 -5 7 -5</code>: sau khi đọc, <code>cnt = {−5: 3, 7: 1, 100000000: 1}</code>. Hỏi <code>-5</code> → <code>3</code>; hỏi <code>8</code> → <code>find</code> không thấy → <code>0</code>.</p>
+
+<h3>Các thao tác chính của <code>map</code></h3>
+<div class="tbl"><table>
+<tr><th>Thao tác</th><th>Cú pháp</th></tr>
+<tr><td>Thêm hoặc sửa</td><td><code>m[k] = v;</code> hoặc <code>m[k]++;</code></td></tr>
+<tr><td>Tìm</td><td><code>m.find(k)</code> trả về iterator, bằng <code>m.end()</code> nếu không có</td></tr>
+<tr><td>Kiểm tra có không</td><td><code>m.count(k)</code> (0 hoặc 1)</td></tr>
+<tr><td>Xóa</td><td><code>m.erase(k)</code></td></tr>
+<tr><td>Số khóa khác nhau</td><td><code>m.size()</code></td></tr>
+<tr><td>Duyệt (tăng dần theo khóa)</td><td><code>for (auto &amp;p : m) { p.first; p.second; }</code></td></tr>
+</table></div>
+<div class="box w"><b>Cạm bẫy:</b> <code>m[k]</code> <b>tự tạo</b> khóa <code>k</code> với giá trị 0 nếu chưa có. Dùng <code>m[x]</code> để "hỏi" sẽ vô tình thêm khóa mới (làm <code>size()</code> sai và tốn bộ nhớ). Khi chỉ muốn tra cứu hãy dùng <code>find</code> hoặc <code>count</code>.</div>
+<p><b>Chi phí:</b> mỗi thao tác <code>O(log n)</code> (map tổ chức khóa theo thứ tự, tìm kiếm giống nhị phân). Với <code>n = 10<sup>5</sup></code> thì chỉ cỡ 17 bước mỗi lần: rất nhanh.</p>
+<div class="box">💡 <b>Cách khác bạn đã biết:</b> sắp xếp dãy rồi dùng <code>upper_bound − lower_bound</code> (chuyên đề Tìm kiếm nhị phân) cũng trả lời được bài này. Khác biệt: <code>map</code> cho phép <b>thêm dữ liệu xen kẽ với việc hỏi</b>, còn sắp xếp + nhị phân chỉ hợp khi dữ liệu cố định.</div>
+</section>
+
+<section id="b4">
+<h2>4. Bậc 4: ký tự và chuỗi</h2>
+<h3>Ký tự: vẫn dùng được mảng đếm</h3>
+<p>Mỗi ký tự thực chất là một số nguyên (mã ASCII), nên có thể làm chỉ số. Với xâu chỉ gồm chữ cái thường, dùng 26 ô:</p>
+<pre><code><span class="k">int</span> cnt[26] = {};
+<span class="k">for</span> (<span class="k">char</span> c : s) cnt[c - 'a']++;      <span class="c">// 'a' → 0, 'b' → 1, ..., 'z' → 25</span>
+<span class="c">// với ký tự bất kỳ: int cnt[256]; cnt[(unsigned char)c]++;</span></code></pre>
+<h3>Chuỗi: không dùng được làm chỉ số</h3>
+<p>Nếu phần tử là <b>từ</b> (chuỗi) thì <code>cnt["apple"]</code> với mảng thông thường là vô nghĩa: chuỗi không phải một số nguyên nhỏ. Khi đó dùng <code>map</code> với khóa là <code>string</code>:</p>
+<pre><code>map&lt;string, <span class="k">int</span>&gt; cnt;
+string w;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) { cin &gt;&gt; w; cnt[w]++; }
+<span class="k">while</span> (q--) {
+    cin &gt;&gt; w;
+    <span class="k">auto</span> it = cnt.find(w);
+    cout &lt;&lt; (it == cnt.end() ? 0 : it-&gt;second) &lt;&lt; "\n";
+}</code></pre>
+<p>Chuỗi tự so sánh theo thứ tự từ điển nên <code>map</code> vẫn sắp xếp được. Mỗi so sánh hai chuỗi tốn thời gian tỉ lệ với độ dài chuỗi, nên chi phí thực tế là <code>O(độ dài · log n)</code> mỗi thao tác.</p>
+<div class="box w">❓ <b>Câu hỏi dẫn sang bậc sau:</b> mảng đếm tra cứu trong <code>O(1)</code> vì biết ngay ô cần đến. Có cách nào "biến một chuỗi thành một số" để cũng dùng như chỉ số mảng không?</div>
+</section>
+
+<section id="b5">
+<h2>5. Bậc 5: băm (hash) và <code>unordered_map</code></h2>
+<p><b>Ý tưởng:</b> dùng một <b>hàm băm</b> <code>h(khóa)</code> biến khóa bất kỳ thành một số trong <code>[0, B)</code>, rồi dùng số đó làm chỉ số vào mảng gồm <code>B</code> ô, y hệt mảng đếm. Ví dụ đơn giản: băm chuỗi bằng <b>tổng mã ký tự</b>, rồi lấy dư khi chia cho <code>B = 7</code>:</p>
+<div class="tbl"><table>
+<tr><th>Khóa</th><th>Tổng mã ASCII</th><th>h = tổng mod 7</th><th>Ô</th></tr>
+<tr><td>"ab"</td><td>97 + 98 = 195</td><td>195 mod 7 = 6</td><td class="i">6</td></tr>
+<tr><td>"c"</td><td>99</td><td>99 mod 7 = 1</td><td>1</td></tr>
+<tr><td>"ba"</td><td>98 + 97 = 195</td><td>195 mod 7 = 6</td><td class="o">6 (trùng với "ab")</td></tr>
+</table></div>
+<p>Hai khóa khác nhau rơi vào cùng một ô gọi là <b>va chạm</b>. Cấu trúc băm xử lý bằng cách mỗi ô giữ một danh sách nhỏ các khóa đã rơi vào nó. Hàm băm tốt trải đều khóa ra các ô nên các danh sách ngắn, và tra cứu gần như đi thẳng đến đáp án.</p>
+<p>C++ có sẵn: <code>unordered_map</code> và <code>unordered_set</code>, dùng <b>y hệt</b> <code>map</code> và <code>set</code>:</p>
+<pre><code>#include &lt;unordered_map&gt;
+unordered_map&lt;string, <span class="k">int</span>&gt; cnt;     <span class="c">// chỉ đổi tên kiểu, phần còn lại giữ nguyên</span>
+cnt[w]++;
+<span class="k">auto</span> it = cnt.find(w);</code></pre>
+<div class="tbl"><table>
+<tr><th></th><th><code>map</code></th><th><code>unordered_map</code></th></tr>
+<tr><td>Cách tổ chức</td><td class="l">Theo thứ tự khóa</td><td class="l">Băm khóa thành chỉ số</td></tr>
+<tr><td>Thời gian mỗi thao tác</td><td class="l">O(log n), luôn ổn định</td><td class="l">Trung bình O(1), xấu nhất O(n)</td></tr>
+<tr><td>Thứ tự khi duyệt</td><td class="l">Tăng dần theo khóa</td><td class="l">Không xác định</td></tr>
+<tr><td>Tìm "khóa nhỏ nhất ≥ x"</td><td class="l">Có (<code>lower_bound</code>)</td><td class="l">Không</td></tr>
+<tr><td>Khóa là <code>pair</code></td><td class="l">Dùng được</td><td class="l">Phải tự viết hàm băm</td></tr>
+</table></div>
+<div class="box w"><b>Lưu ý khi thi:</b> <code>unordered_map</code> có thể bị làm chậm cố ý bằng dữ liệu xấu (rất nhiều va chạm). Với <code>n ≤ 10<sup>5</sup></code>, <code>map</code> với <code>O(log n)</code> đã quá nhanh và an toàn hơn. Chỉ chuyển sang <code>unordered_map</code> khi thật sự cần.</div>
+</section>
+
+<section id="set">
+<h2>6. <code>set</code>: khi chỉ cần biết "có hay không"</h2>
+<p>Nhiều bài không cần đếm, chỉ hỏi "phần tử này đã gặp chưa?". Khi đó dùng <code>set</code>: tập hợp các giá trị <b>không trùng nhau</b>, tự sắp xếp.</p>
+<pre><code>#include &lt;set&gt;
+set&lt;<span class="k">long long</span>&gt; s;
+s.insert(v);                          <span class="c">// thêm (thêm lần hai không có tác dụng)</span>
+<span class="k">if</span> (s.count(x)) cout &lt;&lt; "CO";     <span class="c">// kiểm tra có/không, O(log n)</span>
+cout &lt;&lt; s.size();                     <span class="c">// số phần tử khác nhau</span>
+s.erase(x);                           <span class="c">// xóa</span>
+<span class="k">auto</span> it = s.lower_bound(x);          <span class="c">// phần tử nhỏ nhất ≥ x (nếu it == s.end() là không có)</span></code></pre>
+<p>Duyệt <code>set</code> cho các phần tử theo thứ tự tăng dần. Có thể xem <code>set</code> là "<b>nhị phân động</b>": làm được việc của nhị phân (tìm phần tử ≥ <code>x</code>) nhưng vẫn cho thêm và xóa xen kẽ. Cần nhanh hơn và không cần thứ tự thì dùng <code>unordered_set</code>.</p>
+</section>
+
+<section id="chon">
+<h2>7. Chọn cấu trúc nào?</h2>
+<div class="tbl"><table>
+<tr><th>Tình huống</th><th>Chọn</th></tr>
+<tr><td class="l">Số nguyên không âm, nhỏ (đến cỡ vài triệu)</td><td><code>cnt[]</code> (nhanh nhất, tốn bộ nhớ theo miền giá trị)</td></tr>
+<tr><td class="l">Có số âm nhưng khoảng giá trị vẫn hẹp</td><td><code>cnt[x + OFFSET]</code></td></tr>
+<tr><td class="l">Giá trị rất lớn / khoảng rộng, chuỗi, <code>pair</code></td><td><code>map</code> (ổn định, có thứ tự)</td></tr>
+<tr><td class="l">Như trên, nhưng không cần thứ tự và cần nhanh nhất</td><td><code>unordered_map</code></td></tr>
+<tr><td class="l">Chỉ cần "có / không", hoặc số phần tử khác nhau</td><td><code>set</code> hoặc <code>unordered_set</code></td></tr>
+<tr><td class="l">Dữ liệu cố định, không thêm bớt, hỏi nhiều lần</td><td>Sắp xếp + <code>lower_bound</code> / <code>upper_bound</code></td></tr>
+</table></div>
+<div class="box"><b>Ba câu hỏi để chọn:</b> (1) Khóa có dùng làm chỉ số mảng được không (nguyên, nhỏ, không âm)? (2) Có cần thứ tự hoặc tìm "≥ x" không? (3) Chỉ cần có/không hay cần cả số lần?</div>
+</section>
+
+<section id="bai-tap">
+<h2>8. Bài tập nâng dần</h2>
+<p>Với mỗi bài hãy tự hỏi: <i>"khóa là gì? Miền giá trị lớn cỡ nào? Cần đếm hay chỉ cần có/không?"</i></p>
+
+<div class="bt"><h3>Bài 1. Đếm số phần tử khác nhau <span class="lv">(cơ bản, set)</span></h3>
+<p>Cho <code>n</code> số nguyên (<code>|a<sub>i</sub>| ≤ 10<sup>9</sup></code>). In số giá trị khác nhau.<br><i>Ví dụ:</i> <code>5 1 5 2 1</code> → <code>3</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> bỏ tất cả vào <code>set</code>; <code>set</code> tự loại trùng, số phần tử của nó chính là đáp án. Giá trị lớn và có số âm nên không dùng mảng đếm.</p>
+<pre><code>set&lt;<span class="k">long long</span>&gt; st;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) { <span class="k">long long</span> x; cin &gt;&gt; x; st.insert(x); }
+cout &lt;&lt; st.size();</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 2. Tần suất các chữ cái <span class="lv">(dễ, mảng đếm 26 ô)</span></h3>
+<p>Cho xâu <code>s</code> gồm chữ cái thường. In mỗi chữ cái xuất hiện trong <code>s</code> kèm số lần, theo thứ tự bảng chữ cái.<br><i>Ví dụ:</i> <code>banana</code> → <code>a 3</code>, <code>b 1</code>, <code>n 2</code> (mỗi cặp một dòng)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> chỉ 26 giá trị có thể, dùng ngay mảng đếm. Duyệt <code>i</code> từ 0 đến 25 sẽ tự ra theo thứ tự bảng chữ cái.</p>
+<pre><code><span class="k">int</span> cnt[26] = {};
+<span class="k">for</span> (<span class="k">char</span> c : s) cnt[c - 'a']++;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; 26; i++)
+    <span class="k">if</span> (cnt[i] &gt; 0) cout &lt;&lt; (<span class="k">char</span>)('a' + i) &lt;&lt; " " &lt;&lt; cnt[i] &lt;&lt; "\n";</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 3. Từ xuất hiện nhiều nhất <span class="lv">(dễ, map với chuỗi)</span></h3>
+<p>Cho <code>n</code> từ (mỗi từ không có khoảng trắng). In từ xuất hiện nhiều nhất và số lần; nếu nhiều từ cùng nhiều nhất, in từ có thứ tự từ điển nhỏ nhất.<br><i>Ví dụ:</i> <code>to be or not to be to</code> → <code>to 3</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> khóa là chuỗi nên dùng <code>map&lt;string,int&gt;</code>. <code>map</code> duyệt theo thứ tự từ điển, nên nếu dùng điều kiện so sánh <b>nghiêm ngặt</b> <code>&gt;</code> thì từ nhỏ hơn được giữ lại khi bằng nhau.</p>
+<pre><code>map&lt;string, <span class="k">int</span>&gt; cnt;
+string w;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) { cin &gt;&gt; w; cnt[w]++; }
+string bestW; <span class="k">int</span> bestC = 0;
+<span class="k">for</span> (<span class="k">auto</span> &amp;p : cnt)
+    <span class="k">if</span> (p.second &gt; bestC) { bestC = p.second; bestW = p.first; }
+cout &lt;&lt; bestW &lt;&lt; " " &lt;&lt; bestC;</code></pre></div></details></div>
+
+<div class="bt"><h3>Bài 4. Hai xâu có phải anagram không? <span class="lv">(trung bình)</span></h3>
+<p>Cho hai xâu <code>s</code> và <code>t</code> gồm chữ cái thường. Hỏi <code>t</code> có phải là một cách sắp xếp lại các chữ cái của <code>s</code> không? In <code>YES</code>/<code>NO</code>.<br><i>Ví dụ:</i> <code>listen</code>, <code>silent</code> → <code>YES</code></p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> hai xâu là anagram khi mỗi chữ cái xuất hiện số lần bằng nhau. Đếm xâu <code>s</code> bằng cách cộng, xâu <code>t</code> bằng cách trừ; nếu mọi ô cuối cùng bằng 0 thì đúng. (Xâu khác độ dài thì chắc chắn sai.)</p>
+<pre><code><span class="k">if</span> (s.size() != t.size()) { cout &lt;&lt; "NO"; <span class="k">return</span> 0; }
+<span class="k">int</span> cnt[26] = {};
+<span class="k">for</span> (<span class="k">char</span> c : s) cnt[c - 'a']++;
+<span class="k">for</span> (<span class="k">char</span> c : t) cnt[c - 'a']--;
+<span class="k">bool</span> ok = <span class="k">true</span>;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; 26; i++) <span class="k">if</span> (cnt[i] != 0) ok = <span class="k">false</span>;
+cout &lt;&lt; (ok ? "YES" : "NO");</code></pre>
+<p>Cách khác: sắp xếp cả hai xâu rồi so sánh bằng nhau.</p></div></details></div>
+
+<div class="bt"><h3>Bài 5. Đếm cặp có tổng bằng K <span class="lv">(khá, tra cứu)</span></h3>
+<p>Cho <code>n</code> số nguyên (<b>không</b> sắp xếp, có thể âm hoặc lớn) và số <code>K</code>. Đếm số cặp <code>i &lt; j</code> sao cho <code>a[i] + a[j] = K</code>.<br><i>Ví dụ:</i> <code>1 5 3 3 3</code>, <code>K = 6</code> → <code>4</code> (cặp 1+5 và ba cặp 3+3)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> duyệt từng phần tử <code>x</code> từ trái sang phải. Số cặp kết thúc tại <code>x</code> bằng <b>số lần giá trị <code>K − x</code> đã xuất hiện ở phía trước</b>, đó chính là một lần <b>tra cứu</b>. Cộng vào đáp án, rồi mới ghi nhận <code>x</code> vào <code>map</code>.</p>
+<pre><code>map&lt;<span class="k">long long</span>, <span class="k">int</span>&gt; cnt;
+<span class="k">long long</span> ans = 0;
+<span class="k">for</span> (<span class="k">int</span> i = 0; i &lt; n; i++) {
+    <span class="k">long long</span> x; cin &gt;&gt; x;
+    <span class="k">auto</span> it = cnt.find(K - x);
+    <span class="k">if</span> (it != cnt.end()) ans += it-&gt;second;
+    cnt[x]++;
+}
+cout &lt;&lt; ans;</code></pre>
+<p>Thời gian <code>O(n log n)</code>, không cần sắp xếp. So với hai con trỏ (cần dãy đã sắp xếp), cách này hoạt động trực tiếp trên dãy bất kỳ và đếm được cả các cặp trùng giá trị.</p></div></details></div>
+
+<div class="bt"><h3>Bài 6. Đoạn dài nhất có tối đa k giá trị khác nhau <span class="lv">(khó, hai con trỏ + map)</span></h3>
+<p>Cho <code>n</code> số nguyên (có thể lớn) và số <code>k</code>. Tìm độ dài lớn nhất của một đoạn liên tiếp chứa <b>không quá <code>k</code> giá trị khác nhau</b>.<br><i>Ví dụ:</i> <code>1 2 1 2 3</code>, <code>k = 2</code> → <code>4</code> (đoạn <code>1 2 1 2</code>)</p>
+<details><summary>Xem lời giải</summary><div class="sol">
+<p><b>Hướng dẫn:</b> đây là cửa sổ co giãn (hai con trỏ cùng chiều) với thông tin theo dõi là <b>tần suất các giá trị trong cửa sổ</b>. Dùng <code>map</code> làm bảng đếm: số khóa của <code>map</code> (<code>size()</code>) chính là số giá trị khác nhau hiện có. Khi vượt quá <code>k</code>, thu hẹp bên trái; <b>nhớ xóa khóa khi đếm về 0</b>, nếu không <code>size()</code> sẽ sai.</p>
+<pre><code>map&lt;<span class="k">long long</span>, <span class="k">int</span>&gt; cnt;
+<span class="k">int</span> l = 0, best = 0;
+<span class="k">for</span> (<span class="k">int</span> r = 0; r &lt; n; r++) {
+    cnt[a[r]]++;
+    <span class="k">while</span> ((<span class="k">int</span>)cnt.size() &gt; k) {
+        <span class="k">if</span> (--cnt[a[l]] == 0) cnt.erase(a[l]);
+        l++;
+    }
+    best = max(best, r - l + 1);
+}
+cout &lt;&lt; best;</code></pre>
+<p><i>Chạy thử:</i> đến <code>r = 3</code> cửa sổ <code>1 2 1 2</code> có 2 giá trị, độ dài 4. Ở <code>r = 4</code> thêm <code>3</code> thì có 3 giá trị; bớt lần lượt <code>1</code>, <code>2</code>, <code>1</code> (khóa <code>1</code> về 0 nên bị xóa) cho đến khi còn đúng 2 giá trị; cửa sổ lúc đó là <code>2 3</code>, độ dài 2. Đáp án <b>4</b> ✔ Độ phức tạp <code>O(n log n)</code>.</p></div></details></div>
+</section>
+
+<section id="luu">
+<h2>9. Lưu ý và lỗi thường gặp</h2>
+<div class="box w"><b>Dùng <code>m[x]</code> để hỏi:</b> vô tình tạo khóa mới. Hãy dùng <code>find</code> hoặc <code>count</code> khi chỉ tra cứu.</div>
+<div class="box w"><b>Quên xóa khóa khi đếm về 0:</b> <code>size()</code> không còn là số giá trị khác nhau hiện có (xem Bài 6).</div>
+<div class="box w"><b>Mảng đếm quá lớn hoặc chỉ số âm:</b> kiểm tra miền giá trị trước khi chọn mảng đếm; nhớ kiểm tra truy vấn ngoài phạm vi khi dùng offset.</div>
+<div class="box w"><b>Mong đợi thứ tự từ <code>unordered_map</code>:</b> duyệt cho thứ tự không xác định. Cần thứ tự thì dùng <code>map</code>.</div>
+<div class="box w"><b>Quá nhiều <code>unordered_map</code> trong bài có test xấu:</b> có thể chậm; thử <code>map</code> khi nghi ngờ.</div>
+<div class="box w"><b>Tràn số:</b> khóa và giá trị tổng có thể vượt <code>int</code>; dùng <code>long long</code> (kể cả biến đếm cặp, như Bài 5).</div>
+<div class="box"><b>Tóm tắt:</b> khóa dùng được làm chỉ số (nguyên, nhỏ) → mảng đếm (dịch chỉ số nếu có số âm). Khóa lớn, chuỗi, <code>pair</code> → <code>map</code> (có thứ tự, <code>O(log n)</code>) hoặc <code>unordered_map</code> (băm, trung bình <code>O(1)</code>). Chỉ cần "có/không" → <code>set</code>.<br><b>Chủ đề tiếp theo:</b> mảng hai chiều và tổng tiền tố 2D (hoặc ngăn xếp, hàng đợi).</div>
+</section>
+
+</main>
+<footer>Chúc các bạn học tốt! 🚀</footer>
+</body>
+</html>
